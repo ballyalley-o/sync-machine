@@ -1,5 +1,5 @@
-import fs from 'fs'
-import path from 'path'
+const fs = require('fs')
+const path = require('path')
 
 const reader = async (req, res) => {
   const cwd = process.cwd()
@@ -24,4 +24,4 @@ const reader = async (req, res) => {
 
 const readerController = { reader }
 
-export default readerController
+module.exports = readerController

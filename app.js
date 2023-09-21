@@ -1,4 +1,4 @@
-import { App } from './config/server.js'
+const App = require('./config/server.js')
 
 const app = new App()
 

@@ -1,15 +1,15 @@
-import fs from 'fs'
-import dotenv from 'dotenv'
-import express from 'express'
-import 'colors'
-import PATH from '../constants/path.js'
-import reader from '../controllers/reader.js'
-import { mainRoute } from '../routes/index.js'
+const fs = require('fs')
+const dotenv = require('dotenv')
+const express = require('express')
+require('colors')
+const PATH = require('../constants/path.js')
+const reader = require('../controllers/reader.js')
+const mainRoute = require('../routes/index.js')
 dotenv.config()
 
 const PORT = 3000
 
-export class App {
+class App {
   constructor() {
     this.app = express()
     this.app.use(express.json())
@@ -31,3 +31,6 @@ export class App {
     }
   }
 }
+
+
+module.exports = App
