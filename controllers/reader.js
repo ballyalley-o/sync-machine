@@ -2,6 +2,7 @@ const fs = require('fs')
 const path = require('path')
 const {global} = require('../constants')
 
+// const operationsLog =
 const USERPROFILE = global.userProfile
 const dynamicPath = path.join(
      USERPROFILE,
@@ -10,17 +11,23 @@ const dynamicPath = path.join(
      'HowickHLCv3',
      'appState.json'
    )
+const dynamicPath_txt = path.join(
+  USERPROFILE,
+  'AppData',
+  'Roaming',
+  'HowickHLCv3',
+  'logs',
+  'OPERATIONS_log_2023-10.txt'
+)
 
 
 // reader
 const reader = async (req, res) => {
-  // const cwd = process.cwd()
-  // const filePath = path.join(cwd, 'AppData', 'Roaming')
 
   if (USERPROFILE) {
      fs.readFile(dynamicPath, 'utf8', (err, data) => {
        if (err) {
-         res.status(500).json({ error: 'Internal server error' })
+         res.status(500).json({ error: err })
          return
        }
        try {
@@ -34,7 +41,30 @@ const reader = async (req, res) => {
   }
 }
 
-//watcher
+
+// reader for txt files
+
+const readerTXT = async (req, res ) => {
+  if (USERPROFILE) {
+    fs.readFile(dynamicPath_txt, 'utf8', (err, data) => {
+      if (err) {
+        res.status(500).json({ error: err})
+        return
+      } try {
+        const lines = data.split('\n')
+
+        for (const line of lines) {
+          console.log(line)
+        }
+
+        res.status(200).json(lines)
+      } catch (err) {
+        res.status(500).json({ error: err})
+      }
+    })
+  }
+}
+// watcher
 const watcher = async (req, res) => {
   if (USERPROFILE) {
     const watcher = fs.watch(dynamicPath, (eventType, filename) => {
@@ -42,18 +72,18 @@ const watcher = async (req, res) => {
         try {
           console.log(`${filename} has changed`)
           // read the file
-          fs.readFile(dynamicPath, 'utf8', (err, data) => {
+          fs.readFileSync(dynamicPath, 'utf8', (err, data) => {
             if (err) {
-              res.status(500).json({ error: 'Internal server error' })
+              res.status(500).json({ error: err })
               return
             }
-            try {
-              const jsonData = JSON.parse(data)
-              res.json(jsonData)
-            } catch (parseError) {
-              console.error('Error parsing JSON:', parseError)
-              res.status(500).json({ error: 'Internal server error' })
-            }
+              try {
+                const jsonData = JSON.parse(data)
+                res.json(jsonData)
+              } catch (parseError) {
+                console.error('Error parsing JSON:', parseError)
+                res.status(500).json({ error: parseError })
+              }
           })
         } catch (error) {
           console.log(error)
@@ -75,6 +105,5 @@ const watcher = async (req, res) => {
   }
 }
 
-const readerController = { reader, watcher }
-
+const readerController = { reader, watcher, readerTXT }
 module.exports = readerController
