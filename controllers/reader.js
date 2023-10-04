@@ -1,9 +1,11 @@
 const fs = require('fs')
 const path = require('path')
 const {global} = require('../constants')
+const {logger} = require('../middleware')
 
 // const operationsLog =
 const USERPROFILE = global.userProfile
+
 const dynamicPath = path.join(
      USERPROFILE,
      'AppData',
@@ -19,7 +21,14 @@ const dynamicPath_txt = path.join(
   'logs',
   'OPERATIONS_log_2023-10.txt'
 )
-
+const erpPath_txt = path.join(
+  USERPROFILE,
+  'AppData',
+  'Roaming',
+  'HowickHLCv3',
+  'logs',
+  'ERP_log_2023-10-05.txt'
+)
 
 // reader
 const reader = async (req, res) => {
@@ -34,16 +43,14 @@ const reader = async (req, res) => {
          const jsonData = JSON.parse(data)
          res.json(jsonData)
        } catch (parseError) {
-         console.error('Error parsing JSON:', parseError)
+         logger.error('Error parsing JSON:', parseError)
          res.status(500).json({ error: 'Internal server error' })
        }
      })
   }
 }
 
-
 // reader for txt files
-
 const readerTXT = async (req, res ) => {
   if (USERPROFILE) {
     fs.readFile(dynamicPath_txt, 'utf8', (err, data) => {
@@ -54,7 +61,7 @@ const readerTXT = async (req, res ) => {
         const lines = data.split('\n')
 
         for (const line of lines) {
-          console.log(line)
+          logger.log(line)
         }
 
         res.status(200).json(lines)
@@ -64,6 +71,57 @@ const readerTXT = async (req, res ) => {
     })
   }
 }
+
+// reader for txt files
+const erpGraphCompute = async (req, res ) => {
+  if (USERPROFILE) {
+    fs.readFile(erpPath_txt, 'utf8', (err, data) => {
+      if (err) {
+        res.status(500).json({ error: err })
+        return
+      }
+      try {
+        const lines = data.split('\n')
+        logger.log(lines)
+
+
+        // meters
+        let mmSum = 0
+
+        for (let i = 0; i < lines.length; i++) {
+          if (lines[i].includes(',')) {
+            const lineArr = lines[i].split(',')
+            const mmEl = parseFloat(lineArr[11])
+
+            if (!isNaN(mmEl)) {
+              mmSum += mmEl
+            }
+          }
+        }
+
+        // seconds
+        let prodTotal = 0
+
+        for (let i = 0; i <lines.length; i++) {
+          const lineArr = lines[i].split()
+           const meterEl = parseFloat(lineArr[11])
+        }
+
+
+        const totalSum = {
+          components: lines.length,
+          mm: mmSum,
+          secs: prodTotal,
+        }
+
+        res.status(200).json(totalSum)
+      } catch (err) {
+        res.status(500).json({ error: err })
+      }
+    })
+  }
+}
+
 // watcher
 const watcher = async (req, res) => {
   if (USERPROFILE) {
@@ -105,5 +163,5 @@ const watcher = async (req, res) => {
   }
 }
 
-const readerController = { reader, watcher, readerTXT }
+const readerController = { reader, watcher, readerTXT, erpGraphCompute }
 module.exports = readerController

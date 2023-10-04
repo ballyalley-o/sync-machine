@@ -1,3 +1,4 @@
 module.exports = {
-    global: require('./global')
+    global: require('./global'),
+    path: require('./path')
 }
