@@ -1,76 +1,76 @@
-
+// const logger = require('./logger')
 
 
 const logLooper = (lines, index) => {
+    let el;
+
     switch (index) {
-      case index === 'date':
-        index = 0
+      case 'date':
+        el = 0
         break
-      case index === 'operator':
-        index = 1
+      case 'operator':
+        el = 1
         break
-      case index === 'coilBatch':
-        index = 2
+      case 'coilBatch':
+        el = 2
         break
-      case index === 'width':
-        index = 3
+      case 'width':
+        el = 3
         break
-      case index === 'thickness':
-        index = 4
+      case 'thickness':
+        el = 4
         break
-      case index === 'coilLength':
-        index = 5
+      case 'coilLength':
+        el = 5
         break
-      case index === 'frameset':
-        index = 6
+      case 'frameset':
+        el = 6
         break
-      case index === 'label':
-        index = 7
+      case 'label':
+        el = 7
         break
-      case index === 'web':
-        index = 8
+      case 'web':
+        el = 8
         break
-      case index === 'flange':
-        index = 9
+      case  'flange':
+        el = 9
         break
-      case index === 'profile':
-        index = 10
+      case 'profile':
+        el = 10
         break
-      case index === 'length':
-        index = 11
+      case 'length':
+        el = 11
+        console.log(er, 'I\'M CALLED')
         break
-      case index === 'waste':
-        index = 12
+      case 'waste':
+        el = 12
         break
-      case index === 'time':
-        index = 13
+      case 'time':
+        el = 13
         break
-      case index === 'weight':
-        index = 14
+      case 'weight':
+        el = 14
         break
 
         default:
-        index = null
+        el = null
     }
 
     let total = 0
-    let el = 0
 
     for (let i = 0; i < lines.length; i++) {
-      if (lines[i].includes(',')) {
+        const splitEl = lines[i].includes(',')
+
+      if (splitEl) {
         const lineArr = lines[i].split(',')
-        const parsedEl = parseFloat(lineArr[index])
+        const parsedEl = parseFloat(lineArr[el])
 
         if (!isNaN(parsedEl)) {
-          el = parsedEl
-          total += el
+          total += parsedEl
         }
       }
-
-      return {
-        total, el
-      }
     }
+  return total
 }
 
 module.exports = logLooper

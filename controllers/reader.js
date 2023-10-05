@@ -1,7 +1,7 @@
 const fs = require('fs')
 const path = require('path')
 const {global} = require('../constants')
-const {logger} = require('../middleware')
+const {logger, logLooper} = require('../middleware')
 
 // const operationsLog =
 const USERPROFILE = global.userProfile
@@ -109,29 +109,32 @@ const erpGraphCompute = async (req, res ) => {
       try {
         const lines = data.split('\n')
         logger.log(lines)
-
         const components = lines.length
 
-        // meters
-        let mmSum = 0
+        const { total } = logLooper(lines, 'length')
 
-        for (let i = 0; i < lines.length; i++) {
-          if (lines[i].includes(',')) {
-            const lineArr = lines[i].split(',')
-            const mmEl = parseFloat(lineArr[11])
+        let mmSum = total
+        console.log(mmSum, 'mmSum')
+        // // meters
+        // let mmSum = 0
 
-            if (!isNaN(mmEl)) {
-              mmSum += mmEl
-            }
-          }
-        }
+        // for (let i = 0; i < lines.length; i++) {
+        //   if (lines[i].includes(',')) {
+        //     const lineArr = lines[i].split(',')
+        //     const mmEl = parseFloat(lineArr[11])
+
+        //     if (!isNaN(mmEl)) {
+        //       mmSum += mmEl
+        //     }
+        //   }
+        // }
 
         // seconds
         let secsTotal = 0
 
         for (let i = 0; i <lines.length; i++) {
           const lineArr = lines[i].split(',')
-          const timeEl = parseFloat(lineArr[14])
+          const timeEl = parseFloat(lineArr[13])
 
           if (!isNaN(timeEl)) {
             secsTotal += timeEl
@@ -143,7 +146,7 @@ const erpGraphCompute = async (req, res ) => {
 
         for (let i = 0; i < lines.length; i++) {
           const lineArr = lines[i].split(',')
-          const wasteEl = parseFloat(lineArr[13])
+          const wasteEl = parseFloat(lineArr[12])
 
           if (!isNaN(wasteEl)) {
             wasteTotal += wasteEl
@@ -151,9 +154,11 @@ const erpGraphCompute = async (req, res ) => {
         }
 
         const mmToM = mmSum / 1000
-        const secsPerComponents = secsTotal / components
+        const wasteToM = wasteTotal / 1000
+        const secsPerComponent = secsTotal / components
+        const Total = mmToM + wasteToM
 
-        const graphAvg = mmSum / secsPerComponents
+        const graphAvg = mmSum / secsPerComponent
 
         const totalSum = {
           graphAverage: graphAvg,
@@ -161,8 +166,10 @@ const erpGraphCompute = async (req, res ) => {
           milimeter: mmSum,
           meter: mmToM,
           waste: wasteTotal,
+          wasteM: wasteToM,
+          total: Total,
           seconds: secsTotal,
-          secsPerComponents
+          secsPerComponent,
         }
 
         res.status(200).json(totalSum)
