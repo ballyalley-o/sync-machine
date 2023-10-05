@@ -72,6 +72,32 @@ const readerTXT = async (req, res ) => {
   }
 }
 
+// reader Erp
+const readerErpTXT = async (req, res) => {
+
+  if (USERPROFILE) {
+     fs.readFile(erpPath_txt, 'utf8', (err, data) => {
+       if (err) {
+         res.status(500).json({ error: err })
+         return
+       }
+       try {
+         const lines = data.split('\n')
+
+         for (const line of lines) {
+           logger.log(line)
+         }
+
+          res.status(200).json(lines)
+       } catch (parseError) {
+         logger.error('Error parsing JSON:', parseError)
+         res.status(500).json({ error: 'Internal server error' })
+       }
+     })
+  }
+}
+
+
 // reader for txt files
 const erpGraphCompute = async (req, res ) => {
   if (USERPROFILE) {
@@ -84,6 +110,7 @@ const erpGraphCompute = async (req, res ) => {
         const lines = data.split('\n')
         logger.log(lines)
 
+        const components = lines.length
 
         // meters
         let mmSum = 0
@@ -100,18 +127,42 @@ const erpGraphCompute = async (req, res ) => {
         }
 
         // seconds
-        let prodTotal = 0
+        let secsTotal = 0
 
         for (let i = 0; i <lines.length; i++) {
-          const lineArr = lines[i].split()
-           const meterEl = parseFloat(lineArr[11])
+          const lineArr = lines[i].split(',')
+          const timeEl = parseFloat(lineArr[14])
+
+          if (!isNaN(timeEl)) {
+            secsTotal += timeEl
+          }
         }
 
+        // waste
+        let wasteTotal = 0
+
+        for (let i = 0; i < lines.length; i++) {
+          const lineArr = lines[i].split(',')
+          const wasteEl = parseFloat(lineArr[13])
+
+          if (!isNaN(wasteEl)) {
+            wasteTotal += wasteEl
+          }
+        }
+
+        const mmToM = mmSum / 1000
+        const secsPerComponents = secsTotal / components
+
+        const graphAvg = mmSum / secsPerComponents
 
         const totalSum = {
-          components: lines.length,
-          mm: mmSum,
-          secs: prodTotal,
+          graphAverage: graphAvg,
+          components,
+          milimeter: mmSum,
+          meter: mmToM,
+          waste: wasteTotal,
+          seconds: secsTotal,
+          secsPerComponents
         }
 
         res.status(200).json(totalSum)
@@ -163,5 +214,11 @@ const watcher = async (req, res) => {
   }
 }
 
-const readerController = { reader, watcher, readerTXT, erpGraphCompute }
+const readerController = {
+  reader,
+  watcher,
+  readerTXT,
+  readerErpTXT,
+  erpGraphCompute,
+}
 module.exports = readerController
