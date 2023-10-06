@@ -1,4 +1,4 @@
-const readerController = require('../controllers/reader.js')
+const {readerController} = require('../controllers')
 const express = require('express')
 
 const router = express.Router()
