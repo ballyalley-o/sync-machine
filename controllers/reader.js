@@ -7,7 +7,9 @@ const { global } = require('../constants')
 
 const USERPROFILE = global.userProfile
 
-// reader
+// @desc Reader for Production log
+// @path /api/v1/reader
+// @access Public [not implemented]
 const reader = async (req, res) => {
 
   if (USERPROFILE) {
@@ -49,7 +51,9 @@ const readerTXT = async (req, res ) => {
   }
 }
 
-// reader Erp
+// @desc Reader for ERP log
+// @path /api/v1/reader/erp
+// @access Public [not implemented]
 const readerErpTXT = async (req, res) => {
 
   if (USERPROFILE) {
@@ -74,7 +78,9 @@ const readerErpTXT = async (req, res) => {
   }
 }
 
-
+// @desc --
+// @path /api/v1/reader/latest
+// @access Public [not implemented]
 const latestLog = async (req, res) => {
  try {
    if (USERPROFILE) {
@@ -98,8 +104,10 @@ const latestLog = async (req, res) => {
 }
 
 
-// reader for txt files
-const erpGraphCompute = async (req, res ) => {
+// @desc Totals for ERP log
+// @path /api/v1/reader/erpLatest
+// @access Public [not implemented]
+const erpLive = async (req, res ) => {
 
   if (USERPROFILE) {
         // grab the latest log
@@ -152,7 +160,9 @@ const erpGraphCompute = async (req, res ) => {
   }
 }
 
-// watcher| live
+// @desc Watcher for logs
+// @path /api/v1/reader/watch
+// @access Public [not implemented]
 const watcher = async (req, res) => {
   if (USERPROFILE) {
     const watcher = fs.watch(paths.dynamicPath, (eventType, filename) => {
@@ -198,7 +208,7 @@ const readerController = {
   watcher,
   readerTXT,
   readerErpTXT,
-  erpGraphCompute,
+  erpLive,
   latestLog,
 }
 module.exports = readerController
