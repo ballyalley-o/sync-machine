@@ -87,7 +87,6 @@ const latestLog = async (req, res) => {
        })
       console.log(promisePath, 'promises')
      const data = await fs.promises.readFile(promisePath, 'utf8')
-
      const lines = data.split('\n')
      logger.log(lines)
      const components = lines.length
