@@ -90,7 +90,7 @@ const latestLog = async (req, res) => {
      const lines = data.split('\n')
      logger.log(lines)
      const components = lines.length
-
+     console.log(components)
    }
  } catch (error) {
     res.status(500).json({ error: error.message })
@@ -100,13 +100,19 @@ const latestLog = async (req, res) => {
 
 // reader for txt files
 const erpGraphCompute = async (req, res ) => {
-  // const live = await logLive('erp', 'txt')
-  // console.log(live)
-  if (USERPROFILE) {
-     fs.readFile(paths.erpPath_txt, 'utf8', (err, data) => {
 
+  if (USERPROFILE) {
+        // grab the latest log
+       let promisePath;
+       await paths.livePath('erp', 'txt').then((result) => {
+         promisePath = result
+         logger.log(promisePath)
+         return promisePath
+       })
+
+     fs.readFile(promisePath, 'utf8', (err, data) => {
        if (err) {
-         res.status(500).json({ error: err })
+         res.status(500).json({ error: err.message })
          return
        }
        try {
@@ -114,58 +120,23 @@ const erpGraphCompute = async (req, res ) => {
          logger.log(lines)
          const components = lines.length
 
-         // const { total } = logLooper(lines, 'length')
+        //  collect Data
+         const lengthTotal = logLooper(lines, 'length')
+         const secsTotal = logLooper(lines, 'time')
+         const wasteTotal = logLooper(lines, 'waste')
 
-         // let mmSum = total
-         // console.log(mmSum, 'mmSum')
-         // meters
-         let mmSum = 0
-
-         for (let i = 0; i < lines.length; i++) {
-           if (lines[i].includes(',')) {
-             const lineArr = lines[i].split(',')
-             const mmEl = parseFloat(lineArr[11])
-             if (!isNaN(mmEl)) {
-               mmSum += mmEl
-             }
-           }
-         }
-
-         // seconds
-         let secsTotal = 0
-
-         for (let i = 0; i < lines.length; i++) {
-           const lineArr = lines[i].split(',')
-           const timeEl = parseFloat(lineArr[13])
-
-           if (!isNaN(timeEl)) {
-             secsTotal += timeEl
-           }
-         }
-
-         // waste
-         let wasteTotal = 0
-
-         for (let i = 0; i < lines.length; i++) {
-           const lineArr = lines[i].split(',')
-           const wasteEl = parseFloat(lineArr[12])
-
-           if (!isNaN(wasteEl)) {
-             wasteTotal += wasteEl
-           }
-         }
-
-         const mmToM = mmSum / 1000
+        //  compute data
+         const mmToM = lengthTotal / 1000
          const wasteToM = wasteTotal / 1000
          const secsPerComponent = secsTotal / components
          const Total = mmToM + wasteToM
 
-         const graphAvg = mmSum / secsPerComponent
+         const graphAvg = lengthTotal / secsPerComponent
 
          const totalSum = {
            graphAverage: graphAvg,
            components,
-           milimeter: mmSum,
+           milimeter: lengthTotal,
            meter: mmToM,
            waste: wasteTotal,
            wasteM: wasteToM,
@@ -173,10 +144,9 @@ const erpGraphCompute = async (req, res ) => {
            seconds: secsTotal,
            secsPerComponent,
          }
-
          res.status(200).json(totalSum)
        } catch (err) {
-         res.status(500).json({ error: err })
+         res.status(500).json({ error: err.message })
        }
      })
   }

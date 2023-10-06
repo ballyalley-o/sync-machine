@@ -79,22 +79,16 @@ const logLive = (type, ext) => {
   return new Promise((resolve, reject) => {
     latestLog(type, ext, (err, latestLog) => {
       if (err) {
+        logger.error(err)
         reject(err)
       } else {
+        logger.info('LOG FILE: ', latestLog)
         resolve(latestLog)
       }
     })
   })
 }
 
-// async function logLive() {
-//   try {
-//     let latestErp = await latestLogPromise('erp', 'txt')
-
-//   } catch (err) {
-//     console.error('Error:', err)
-//   }
-// }
 
 
 module.exports = logLive
