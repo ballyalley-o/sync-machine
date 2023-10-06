@@ -40,7 +40,6 @@ const logLooper = (lines, index) => {
         break
       case 'length':
         el = 11
-        console.log(er, 'I\'M CALLED')
         break
       case 'waste':
         el = 12
@@ -64,13 +63,14 @@ const logLooper = (lines, index) => {
       if (splitEl) {
         const lineArr = lines[i].split(',')
         const parsedEl = parseFloat(lineArr[el])
-
+        console.log('parsedEl: ', parsedEl)
         if (!isNaN(parsedEl)) {
           total += parsedEl
         }
+
       }
     }
-  return total
+    return total
 }
 
 module.exports = logLooper

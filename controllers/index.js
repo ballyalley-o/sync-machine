@@ -1,1 +1,3 @@
-export { default as reader } from './reader'
+module.exports = {
+  readerController: require('./reader')
+}
