@@ -1,40 +1,17 @@
 const fs = require('fs')
 const path = require('path')
-const {global} = require('../constants')
 const {logger, logLooper} = require('../middleware')
+const { paths, logLive } = require('../utils')
+const { global } = require('../constants')
 
-// const operationsLog =
+
 const USERPROFILE = global.userProfile
-
-const dynamicPath = path.join(
-     USERPROFILE,
-     'AppData',
-     'Roaming',
-     'HowickHLCv3',
-     'appState.json'
-   )
-const dynamicPath_txt = path.join(
-  USERPROFILE,
-  'AppData',
-  'Roaming',
-  'HowickHLCv3',
-  'logs',
-  'OPERATIONS_log_2023-10.txt'
-)
-const erpPath_txt = path.join(
-  USERPROFILE,
-  'AppData',
-  'Roaming',
-  'HowickHLCv3',
-  'logs',
-  'ERP_log_2023-10-05.txt'
-)
 
 // reader
 const reader = async (req, res) => {
 
   if (USERPROFILE) {
-     fs.readFile(dynamicPath, 'utf8', (err, data) => {
+     fs.readFile(paths.dynamicPath, 'utf8', (err, data) => {
        if (err) {
          res.status(500).json({ error: err })
          return
@@ -53,7 +30,7 @@ const reader = async (req, res) => {
 // reader for txt files
 const readerTXT = async (req, res ) => {
   if (USERPROFILE) {
-    fs.readFile(dynamicPath_txt, 'utf8', (err, data) => {
+    fs.readFile(paths.dynamicPath_txt, 'utf8', (err, data) => {
       if (err) {
         res.status(500).json({ error: err})
         return
@@ -76,7 +53,7 @@ const readerTXT = async (req, res ) => {
 const readerErpTXT = async (req, res) => {
 
   if (USERPROFILE) {
-     fs.readFile(erpPath_txt, 'utf8', (err, data) => {
+     fs.readFile(paths.erpPath_txt, 'utf8', (err, data) => {
        if (err) {
          res.status(500).json({ error: err })
          return
@@ -88,7 +65,7 @@ const readerErpTXT = async (req, res) => {
            logger.log(line)
          }
 
-          res.status(200).json(lines)
+         res.status(200).json(lines)
        } catch (parseError) {
          logger.error('Error parsing JSON:', parseError)
          res.status(500).json({ error: 'Internal server error' })
@@ -98,92 +75,118 @@ const readerErpTXT = async (req, res) => {
 }
 
 
+const latestLog = async (req, res) => {
+ try {
+   if (USERPROFILE) {
+      let promisePath;
+     const live = await paths
+       .livePath('erp', 'txt')
+       .then((result) => {
+        promisePath = result
+        return promisePath
+       })
+      console.log(promisePath, 'promises')
+     const data = await fs.promises.readFile(promisePath, 'utf8')
+
+     const lines = data.split('\n')
+     logger.log(lines)
+     const components = lines.length
+
+   }
+ } catch (error) {
+    res.status(500).json({ error: error.message })
+ }
+}
+
+
 // reader for txt files
 const erpGraphCompute = async (req, res ) => {
+  // const live = await logLive('erp', 'txt')
+  // console.log(live)
   if (USERPROFILE) {
-    fs.readFile(erpPath_txt, 'utf8', (err, data) => {
-      if (err) {
-        res.status(500).json({ error: err })
-        return
-      }
-      try {
-        const lines = data.split('\n')
-        logger.log(lines)
-        const components = lines.length
+     fs.readFile(paths.erpPath_txt, 'utf8', (err, data) => {
 
-        const { total } = logLooper(lines, 'length')
+       if (err) {
+         res.status(500).json({ error: err })
+         return
+       }
+       try {
+         const lines = data.split('\n')
+         logger.log(lines)
+         const components = lines.length
 
-        let mmSum = total
-        console.log(mmSum, 'mmSum')
-        // // meters
-        // let mmSum = 0
+         // const { total } = logLooper(lines, 'length')
 
-        // for (let i = 0; i < lines.length; i++) {
-        //   if (lines[i].includes(',')) {
-        //     const lineArr = lines[i].split(',')
-        //     const mmEl = parseFloat(lineArr[11])
+         // let mmSum = total
+         // console.log(mmSum, 'mmSum')
+         // meters
+         let mmSum = 0
 
-        //     if (!isNaN(mmEl)) {
-        //       mmSum += mmEl
-        //     }
-        //   }
-        // }
+         for (let i = 0; i < lines.length; i++) {
+           if (lines[i].includes(',')) {
+             const lineArr = lines[i].split(',')
+             const mmEl = parseFloat(lineArr[11])
+             if (!isNaN(mmEl)) {
+               mmSum += mmEl
+             }
+           }
+         }
 
-        // seconds
-        let secsTotal = 0
+         // seconds
+         let secsTotal = 0
 
-        for (let i = 0; i <lines.length; i++) {
-          const lineArr = lines[i].split(',')
-          const timeEl = parseFloat(lineArr[13])
+         for (let i = 0; i < lines.length; i++) {
+           const lineArr = lines[i].split(',')
+           const timeEl = parseFloat(lineArr[13])
 
-          if (!isNaN(timeEl)) {
-            secsTotal += timeEl
-          }
-        }
+           if (!isNaN(timeEl)) {
+             secsTotal += timeEl
+           }
+         }
 
-        // waste
-        let wasteTotal = 0
+         // waste
+         let wasteTotal = 0
 
-        for (let i = 0; i < lines.length; i++) {
-          const lineArr = lines[i].split(',')
-          const wasteEl = parseFloat(lineArr[12])
+         for (let i = 0; i < lines.length; i++) {
+           const lineArr = lines[i].split(',')
+           const wasteEl = parseFloat(lineArr[12])
 
-          if (!isNaN(wasteEl)) {
-            wasteTotal += wasteEl
-          }
-        }
+           if (!isNaN(wasteEl)) {
+             wasteTotal += wasteEl
+           }
+         }
 
-        const mmToM = mmSum / 1000
-        const wasteToM = wasteTotal / 1000
-        const secsPerComponent = secsTotal / components
-        const Total = mmToM + wasteToM
+         const mmToM = mmSum / 1000
+         const wasteToM = wasteTotal / 1000
+         const secsPerComponent = secsTotal / components
+         const Total = mmToM + wasteToM
 
-        const graphAvg = mmSum / secsPerComponent
+         const graphAvg = mmSum / secsPerComponent
 
-        const totalSum = {
-          graphAverage: graphAvg,
-          components,
-          milimeter: mmSum,
-          meter: mmToM,
-          waste: wasteTotal,
-          wasteM: wasteToM,
-          total: Total,
-          seconds: secsTotal,
-          secsPerComponent,
-        }
+         const totalSum = {
+           graphAverage: graphAvg,
+           components,
+           milimeter: mmSum,
+           meter: mmToM,
+           waste: wasteTotal,
+           wasteM: wasteToM,
+           total: Total,
+           seconds: secsTotal,
+           secsPerComponent,
+         }
 
-        res.status(200).json(totalSum)
-      } catch (err) {
-        res.status(500).json({ error: err })
-      }
-    })
+         res.status(200).json(totalSum)
+       } catch (err) {
+         res.status(500).json({ error: err })
+       }
+     })
   }
 }
 
-// watcher
+// watcher| live
 const watcher = async (req, res) => {
   if (USERPROFILE) {
-    const watcher = fs.watch(dynamicPath, (eventType, filename) => {
+    const watcher = fs.watch(paths.dynamicPath, (eventType, filename) => {
       if (eventType === 'change') {
         try {
           console.log(`${filename} has changed`)
@@ -227,5 +230,6 @@ const readerController = {
   readerTXT,
   readerErpTXT,
   erpGraphCompute,
+  latestLog,
 }
 module.exports = readerController
