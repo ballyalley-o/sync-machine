@@ -49,7 +49,6 @@ async function livePath(logPath, ext) {
         return null
     }
 }
-// livePath('erp', 'txt')
 
 const PATHDIR = livePath('erp', 'txt')
   .then((path) => {

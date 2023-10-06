@@ -8,6 +8,7 @@ const { global } = require('../constants')
 const USERPROFILE = global.userProfile
 
 // @desc Reader for Production log
+// @file appState.json
 // @path /api/v1/reader
 // @access Public [not implemented]
 const reader = async (req, res) => {
@@ -135,9 +136,9 @@ const erpLive = async (req, res ) => {
 
         //  compute data
          const mmToM = lengthTotal / 1000
-         const wasteToM = wasteTotal / 1000
+         const wasteInMeters = wasteTotal / 1000
          const secsPerComponent = secsTotal / components
-         const Total = mmToM + wasteToM
+         const totalInMeters = mmToM + wasteInMeters
 
          const graphAvg = lengthTotal / secsPerComponent
 
@@ -147,8 +148,9 @@ const erpLive = async (req, res ) => {
            milimeter: lengthTotal,
            meter: mmToM,
            waste: wasteTotal,
-           wasteM: wasteToM,
-           total: Total,
+           wasteInMeters,
+           totalInMeters,
+           total: lengthTotal + wasteTotal,
            seconds: secsTotal,
            secsPerComponent,
          }
