@@ -2,17 +2,14 @@ const path = require('path')
 const fileName = require('./file-path')
 const { global } = require('../constants')
 const logLive = require('./latest')
+const appStateLive = require('./appState-latest')
 const { logger, asyncHandler } = require('../middleware')
 
 const USERPROFILE = global.userProfile
 
-const dynamicPath = path.join(
-  USERPROFILE,
-  'AppData',
-  'Roaming',
-  'HowickHLCv3',
-  'appState.json'
-)
+const dynamicRootPath = (fileName) =>
+  path.join(USERPROFILE, 'AppData', 'Roaming', 'HowickHLCv3', fileName)
+
 const dynamicPath_txt = path.join(
   USERPROFILE,
   'AppData',
@@ -42,6 +39,7 @@ const pathDir = (live) => path.join(
 async function livePath(logPath, ext) {
     try {
         const live = await logLive(logPath, ext)
+
         const PathDir = pathDir(live)
          return PathDir
     } catch (error) {
@@ -50,15 +48,29 @@ async function livePath(logPath, ext) {
     }
 }
 
-const PATHDIR = livePath('erp', 'txt')
-  .then((path) => {
-    const PATHDIR = path
-    return
-  })
-  .catch((error) => {
-    logger.error(error.message)
-  })
+async function rootPath(fileName, ext) {
+    try {
+        const file = await appStateLive(fileName, ext)
+        let appState
+
+        if (file.length === 1) {
+          appState = file.pop()
+        }
+
+        const PathDir = dynamicRootPath(appState)
+        return PathDir
+    } catch (error) {
+        logger.error(error.message)
+        return null
+    }
+}
 
 
-const paths = { dynamicPath, dynamicPath_txt, erpPath_txt, livePath }
+const paths = {
+  dynamicRootPath,
+  dynamicPath_txt,
+  erpPath_txt,
+  livePath,
+  rootPath,
+}
 module.exports = paths
