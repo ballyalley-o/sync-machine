@@ -6,7 +6,7 @@ const { global } = require('../constants')
 
 
 const USERPROFILE = global.userProfile
-
+let totalSum
 // @desc Reader for Production log
 // @file appState.json
 // @path /api/v1/reader
@@ -14,14 +14,23 @@ const USERPROFILE = global.userProfile
 const reader = async (req, res) => {
 
   if (USERPROFILE) {
-     fs.readFile(paths.dynamicPath, 'utf8', (err, data) => {
+     fs.readFile(paths.dynamicRootPath('appState.json'), 'utf8', (err, data) => {
        if (err) {
          res.status(500).json({ error: err })
          return
        }
        try {
          const jsonData = JSON.parse(data)
-         res.json(jsonData)
+         logger.log('READER:', jsonData.config.ConfigurationFormat.HLCVersion)
+         if (jsonData) {
+           const HLCVersion = jsonData.config.ConfigurationFormat.HLCVersion
+            return Object.assign({}, totalSum, {
+              HMIVersion: HLCVersion,
+            })
+          }
+
+          res.json(jsonData)
+
        } catch (parseError) {
          logger.error('Error parsing JSON:', parseError)
          res.status(500).json({ error: 'Internal server error' })
@@ -109,56 +118,83 @@ const latestLog = async (req, res) => {
 // @path /api/v1/reader/erpLatest
 // @access Public [not implemented]
 const erpLive = async (req, res ) => {
-
   if (USERPROFILE) {
-        // grab the latest log
-       let promisePath;
-       await paths.livePath('erp', 'txt').then((result) => {
-         promisePath = result
-         logger.log(promisePath)
-         return promisePath
-       })
+    // grab some data from appstate.json
+    let appStatePath
+    let jsonData
 
-     fs.readFile(promisePath, 'utf8', (err, data) => {
-       if (err) {
+    await paths.rootPath('appState', 'json').then((result) => {
+      appStatePath = result
+      logger.log(appStatePath, 'APP STATE PATH')
+      return appStatePath
+    })
+
+    fs.readFile(appStatePath, 'utf8', (err, data) => {
+      if (err) {
+        res.status(500).json({error: err.message})
+        return
+      }
+
+      try {
+         jsonData = JSON.parse(data)
+        return jsonData
+      } catch (err) {
+         logger.error('Error parsing JSON:', err)
          res.status(500).json({ error: err.message })
-         return
-       }
-       try {
-         const lines = data.split('\n')
-         logger.log(lines)
-         const components = lines.length
+      }
+
+    })
+
+    // grab the latest log
+    let promisePath
+    await paths.livePath('erp', 'txt').then((result) => {
+      promisePath = result
+      logger.log(promisePath)
+      return promisePath
+    })
+
+    fs.readFile(promisePath, 'utf8', (err, data) => {
+      if (err) {
+        res.status(500).json({ error: err.message })
+        return
+      }
+      try {
+        const lines = data.split('\n')
+        logger.log(lines)
+        const components = lines.length
 
         //  collect Data
-         const lengthTotal = logLooper(lines, 'length')
-         const secsTotal = logLooper(lines, 'time')
-         const wasteTotal = logLooper(lines, 'waste')
+        const lengthTotal = logLooper(lines, 'length')
+        const secsTotal = logLooper(lines, 'time')
+        const wasteTotal = logLooper(lines, 'waste')
 
         //  compute data
-         const mmToM = lengthTotal / 1000
-         const wasteInMeters = wasteTotal / 1000
-         const secsPerComponent = secsTotal / components
-         const totalInMeters = mmToM + wasteInMeters
+        const mmToM = lengthTotal / 1000
+        const wasteInMeters = wasteTotal / 1000
+        const secsPerComponent = secsTotal / components
+        const totalInMeters = mmToM + wasteInMeters
 
-         const graphAvg = lengthTotal / secsPerComponent
+        const graphAvg = lengthTotal / secsPerComponent
 
-         const totalSum = {
-           graphAverage: graphAvg,
-           components,
-           milimeter: lengthTotal,
-           meter: mmToM,
-           waste: wasteTotal,
-           wasteInMeters,
-           totalInMeters,
-           total: lengthTotal + wasteTotal,
-           seconds: secsTotal,
-           secsPerComponent,
-         }
-         res.status(200).json(totalSum)
-       } catch (err) {
-         res.status(500).json({ error: err.message })
-       }
-     })
+        totalSum = {
+          HMIVersion: jsonData.config.ConfigurationFormat.HLCVersion,
+          LogFileName: promisePath,
+          graphAverage: graphAvg,
+          components,
+          milimeter: lengthTotal,
+          meter: mmToM,
+          waste: wasteTotal,
+          wasteInMeters,
+          totalInMeters,
+          total: lengthTotal + wasteTotal,
+          seconds: secsTotal,
+          secsPerComponent,
+        }
+        res.status(200).json(totalSum)
+      } catch (err) {
+        res.status(500).json({ error: err.message })
+      }
+    })
   }
 }
 
@@ -167,23 +203,23 @@ const erpLive = async (req, res ) => {
 // @access Public [not implemented]
 const watcher = async (req, res) => {
   if (USERPROFILE) {
-    const watcher = fs.watch(paths.dynamicPath, (eventType, filename) => {
+    const watcher = fs.watch(paths.dynamicRootPath, (eventType, filename) => {
       if (eventType === 'change') {
         try {
           console.log(`${filename} has changed`)
           // read the file
-          fs.readFileSync(dynamicPath, 'utf8', (err, data) => {
+          fs.readFileSync(dynamicRootPath, 'utf8', (err, data) => {
             if (err) {
               res.status(500).json({ error: err })
               return
             }
-              try {
-                const jsonData = JSON.parse(data)
-                res.json(jsonData)
-              } catch (parseError) {
-                console.error('Error parsing JSON:', parseError)
-                res.status(500).json({ error: parseError })
-              }
+            try {
+              const jsonData = JSON.parse(data)
+              res.json(jsonData)
+            } catch (parseError) {
+              console.error('Error parsing JSON:', parseError)
+              res.status(500).json({ error: parseError })
+            }
           })
         } catch (error) {
           console.log(error)
