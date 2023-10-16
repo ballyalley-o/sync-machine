@@ -14,6 +14,7 @@ router.get('/txt', readerController.readerTXT)
 router.get('/erp', readerController.readerErpTXT)
 router.get('/erpLatest', readerController.erpLive)
 router.get('/latest', readerController.latestLog)
+router.get('/winState', readerController.winState_reader)
 
 const readerRouter = router
 module.exports = readerRouter
