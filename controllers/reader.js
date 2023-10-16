@@ -22,12 +22,12 @@ const reader = async (req, res) => {
        try {
          const jsonData = JSON.parse(data)
          logger.log('READER:', jsonData.config.ConfigurationFormat.HLCVersion)
-         if (jsonData) {
-           const HLCVersion = jsonData.config.ConfigurationFormat.HLCVersion
-            return Object.assign({}, totalSum, {
-              HMIVersion: HLCVersion,
-            })
-          }
+        //  if (jsonData) {
+        //    const HLCVersion = jsonData.config.ConfigurationFormat.HLCVersion
+        //     return Object.assign({}, totalSum, {
+        //       HMIVersion: HLCVersion,
+        //     })
+        //   }
 
           res.json(jsonData)
 
@@ -36,6 +36,37 @@ const reader = async (req, res) => {
          res.status(500).json({ error: 'Internal server error' })
        }
      })
+  }
+}
+
+
+const winState_reader = async (req, res) => {
+  if (USERPROFILE) {
+    fs.readFile(
+      paths.dynamicRootPath('appWindowState.json'),
+      'utf8',
+      (err, data) => {
+        if (err) {
+          res.status(500).json({ error: err })
+          return
+        }
+        try {
+          const jsonData = JSON.parse(data)
+          // logger.log('READER:', jsonData.config.ConfigurationFormat.HLCVersion)
+          //  if (jsonData) {
+          //    const HLCVersion = jsonData.config.ConfigurationFormat.HLCVersion
+          //     return Object.assign({}, totalSum, {
+          //       HMIVersion: HLCVersion,
+          //     })
+          //   }
+
+          res.json(jsonData)
+        } catch (parseError) {
+          logger.error('Error parsing JSON:', parseError)
+          res.status(500).json({ error: 'Internal server error' })
+        }
+      }
+    )
   }
 }
 
@@ -131,21 +162,23 @@ const erpLive = async (req, res ) => {
 
     fs.readFile(appStatePath, 'utf8', (err, data) => {
       if (err) {
-        res.status(500).json({error: err.message})
+        res.status(500).json({ error: err.message })
         return
       }
 
       try {
-         jsonData = JSON.parse(data)
+        jsonData = JSON.parse(data)
         return jsonData
       } catch (err) {
-         logger.error('Error parsing JSON:', err)
-         res.status(500).json({ error: err.message })
+        logger.error('Error parsing JSON:', err)
+        res.status(500).json({ error: err.message })
       }
-
     })
 
-    // grab the latest log
+    // --------------------------------------------------------
+    /**
+     * grab the latest log
+     */
     let promisePath
     await paths.livePath('erp', 'txt').then((result) => {
       promisePath = result
@@ -178,6 +211,7 @@ const erpLive = async (req, res ) => {
 
         totalSum = {
           HMIVersion: jsonData.config.ConfigurationFormat.HLCVersion,
+          sequenceNumber: jsonData.componentSequenceNumberCounter,
           LogFileName: promisePath,
           graphAverage: graphAvg,
           components,
@@ -248,5 +282,6 @@ const readerController = {
   readerErpTXT,
   erpLive,
   latestLog,
+  winState_reader,
 }
 module.exports = readerController

@@ -1,3 +1,4 @@
 module.exports = {
-  readerController: require('./reader')
+  readerController: require('./reader'),
+  analogController: require('./analog')
 }
