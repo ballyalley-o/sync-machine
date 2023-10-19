@@ -1,5 +1,6 @@
 const fs = require('fs')
 const path = require('path')
+const chokidar = require('chokidar')
 const {logger, logLooper} = require('../middleware')
 const { paths, logLive } = require('../utils')
 const { global } = require('../constants')
@@ -275,12 +276,81 @@ const watcher = async (req, res) => {
   }
 }
 
+
+// ----------------------------------------------------------------
+
+
+const liveWatchErp = async (req, res) => {
+  if (USERPROFILE) {
+    const filePath = paths.livePath('erp', 'txt').then((result) => {
+      promisePath = result
+      logger.log(promisePath)
+      return promisePath
+    })
+    // Define the file you want to watch
+    // const filePath = await paths.rootPath('appState', 'json').then((result) => {
+    //    appStatePath = result
+    //    logger.log(appStatePath, 'APP STATE PATH')
+    //    return appStatePath
+    //  })
+
+    try {
+      console.log(`${filePath} has changed`)
+      // Create a Chokidar watcher
+      const watchErp = chokidar.watch(filePath)
+      console.log(filePath, 'FILE PATH WATCHER')
+      let counter = 0
+      // Listen for the 'change' event
+      watchErp.on('change', async (err, data) => {
+        counter += 1
+        // // Do something when the file changes
+        // console.log('heya!', counter)
+
+        // const watcherdata = {
+        //   coilAdded: '25m',
+        //   counter,
+        // }
+
+        await res.status(200).send({ counter })
+      })
+
+      // Start the watcher
+      watchErp.on('ready', async (err, data) => {
+        counter += 1
+        console.log('Watching file: ', filePath)
+
+        // Do something when the file changes
+        console.log('heya!', Number(counter))
+
+        const watcherData = {
+          coil: 24,
+          coilLength: 2,
+        }
+        await res.status(200).send(counter)
+      })
+
+      // When the application exits, stop the watcher
+      process.on('SIGINT', () => {
+        watchErp.close()
+      })
+    } catch (error) {
+
+    }
+
+  } else {
+    console.log('USER PROFILE NOT FOUND')
+  }
+
+}
+
+
 const readerController = {
   reader,
   watcher,
   readerTXT,
   readerErpTXT,
   erpLive,
+  liveWatchErp,
   latestLog,
   winState_reader,
 }
