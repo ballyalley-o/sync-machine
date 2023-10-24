@@ -7,47 +7,26 @@ const coilLooper = (lines, index) => {
     case 'date':
       el = 0
       break
-    case 'operator':
+    case 'coilBatch':
       el = 1
       break
-    case 'coilBatch':
+    case 'length':
       el = 2
       break
-    case 'length':
-      el = 3
-      break
-    case 'unit':
+    case 'thickness':
       el = 4
       break
-    case 'coilLength':
-      el = 5
-      break
-    case 'frameset':
+    case 'width':
       el = 6
       break
-    case 'label':
+    case 'weight':
       el = 7
       break
-    case 'web':
+    case 'density':
       el = 8
       break
-    case 'flange':
+    case 'operator':
       el = 9
-      break
-    case 'profile':
-      el = 10
-      break
-    case 'length':
-      el = 11
-      break
-    case 'waste':
-      el = 12
-      break
-    case 'time':
-      el = 13
-      break
-    case 'weight':
-      el = 14
       break
 
     default:
@@ -62,13 +41,16 @@ const coilLooper = (lines, index) => {
     if (splitEl) {
       const lineArr = lines[i].split(',')
       const parsedEl = parseFloat(lineArr[el])
-      console.log('parsedEl: ', parsedEl)
-      if (!isNaN(parsedEl)) {
-        total += parsedEl
-      }
+
+      // for calculating total
+      // console.log(lineArr[4], 'COIL PARSED EL')
+      // if (!isNaN(parsedEl)) {
+      //   total += parsedEl
+      // }
+
+      return parsedEl
     }
   }
-  return total
 }
 
-module.exports = logLooper
+module.exports = coilLooper
