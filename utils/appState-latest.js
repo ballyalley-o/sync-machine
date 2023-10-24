@@ -50,6 +50,7 @@ const latestState = (type, ext, callback) => {
       return
     }
 
+
     logger.log('Appstate file:', appFiles)
 
     if (callback) {

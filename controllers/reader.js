@@ -1,6 +1,7 @@
 const fs = require('fs')
-const path = require('path')
-const chokidar = require('chokidar')
+// const path = require('path')
+// const chokidar = require('chokidar')
+// const io = require('../app')
 const {logger, logLooper} = require('../middleware')
 const { paths, logLive } = require('../utils')
 const { global } = require('../constants')
@@ -13,7 +14,6 @@ let totalSum
 // @path /api/v1/reader
 // @access Public [not implemented]
 const reader = async (req, res) => {
-
   if (USERPROFILE) {
      fs.readFile(paths.dynamicRootPath('appState.json'), 'utf8', (err, data) => {
        if (err) {
@@ -279,70 +279,42 @@ const watcher = async (req, res) => {
 
 // ----------------------------------------------------------------
 
+// R&D for sockets
+const coilWatcher = async (req, res) => {
 
-const liveWatchErp = async (req, res) => {
+  let promisePath
+
   if (USERPROFILE) {
-    const filePath = paths.livePath('erp', 'txt').then((result) => {
+    const filePath = await paths.livePath('coil', 'txt').then((result) => {
       promisePath = result
       logger.log(promisePath)
       return promisePath
     })
-    // Define the file you want to watch
-    // const filePath = await paths.rootPath('appState', 'json').then((result) => {
-    //    appStatePath = result
-    //    logger.log(appStatePath, 'APP STATE PATH')
-    //    return appStatePath
-    //  })
 
     try {
-      console.log(`${filePath} has changed`)
-      // Create a Chokidar watcher
-      const watchErp = chokidar.watch(filePath)
-      console.log(filePath, 'FILE PATH WATCHER')
-      let counter = 0
-      // Listen for the 'change' event
-      watchErp.on('change', async (err, data) => {
-        counter += 1
-        // // Do something when the file changes
-        // console.log('heya!', counter)
-
-        // const watcherdata = {
-        //   coilAdded: '25m',
-        //   counter,
-        // }
-
-        await res.status(200).send({ counter })
-      })
-
+      // const watchErp = chokidar.watch(filePath)
       // Start the watcher
-      watchErp.on('ready', async (err, data) => {
-        counter += 1
-        console.log('Watching file: ', filePath)
-
-        // Do something when the file changes
-        console.log('heya!', Number(counter))
-
-        const watcherData = {
-          coil: 24,
-          coilLength: 2,
-        }
-        await res.status(200).send(counter)
-      })
-
-      // When the application exits, stop the watcher
-      process.on('SIGINT', () => {
-        watchErp.close()
-      })
+     fs.readFile(promisePath, 'utf8', (err, data) => {
+       if (err) {
+         res.status(500).json({ error: err.message })
+         return
+       }
+       try {
+         res.status(200).json(data)
+       } catch (err) {
+         logger.error('Error parsing JSON:', err)
+         res.status(500).json({ error: err.message })
+       }
+     })
     } catch (error) {
-
+      console.error(error)
+      res.status(500).send({ error: error.message })
     }
-
   } else {
     console.log('USER PROFILE NOT FOUND')
+    res.status(403).send('User profile not found')
   }
-
 }
-
 
 const readerController = {
   reader,
@@ -350,7 +322,7 @@ const readerController = {
   readerTXT,
   readerErpTXT,
   erpLive,
-  liveWatchErp,
+  coilWatcher,
   latestLog,
   winState_reader,
 }
