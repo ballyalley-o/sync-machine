@@ -1,49 +1,18 @@
 const fs = require('fs')
+const fetch = require('node-fetch')
 const { logger, coilLooper } = require('../middleware')
 const { paths, logLive } = require('../utils')
-const { global } = require('../constants')
+const { GLOBAL } = require('../config')
 
-const USERPROFILE = global.userProfile
+const USERPROFILE = GLOBAL.userProfile
 
-let coilSpecs;
+let coilSpecs
 let jsonData
 
 // @desc full Coil log
 // @path /api/v1/log/coil
 // @access Public [not implemented]
-const coilLog = async (req, res ) => {
-    const filePath = await paths.livePath('coil', 'txt').then((result) => {
-    promisePath = result
-    logger.log(promisePath)
-    return promisePath
-    })
-
-  if (USERPROFILE) {
-    fs.readFile(filePath, 'utf8', (err, data) => {
-      if (err) {
-        res.status(500).json({ error: err.message })
-        return
-      }
-      try {
-        const lines = data.split('\n')
-
-        for (const line of lines) {
-        logger.log(line)
-        }
-
-        res.status(200).json(lines)
-      } catch (err) {
-        res.status(500).json({ error: err.message })
-      }
-    })
-  }
-}
-
-
-// @desc Totals for Coil log
-// @path /api/v1/log/parsedCoilLog
-// @access Public [not implemented]
-const parsedCoilLog = async (req, res) => {
+const coilLog = async (req, res) => {
   const filePath = await paths.livePath('coil', 'txt').then((result) => {
     promisePath = result
     logger.log(promisePath)
@@ -58,22 +27,61 @@ const parsedCoilLog = async (req, res) => {
       }
       try {
         const lines = data.split('\n')
+
+        for (const line of lines) {
+          logger.log(line)
+        }
+
+        res.status(200).json(lines)
+      } catch (err) {
+        res.status(500).json({ error: err.message })
+      }
+    })
+  }
+}
+
+// @desc Totals for Coil log
+// @path /api/v1/log/parsedCoilLog
+// @access Public [not implemented]
+const parsedCoilLog = async (req, res) => {
+  const filePath = await paths.livePath('coil', 'txt').then((result) => {
+    promisePath = result
+    logger.log(promisePath)
+    return promisePath
+  })
+
+  const coilState = await fetch(`http://localhost:3000/api/0.0.1/app-state/erpLatest`, {
+    method: 'GET',
+  })
+    const appStateFetch = await coilState.json()
+
+  if (USERPROFILE) {
+    fs.readFile(filePath, 'utf8', (err, data) => {
+      if (err) {
+        res.status(500).json({ error: err.message })
+        return
+      }
+      try {
+        const lines = data.split('\n')
         const revLines = lines.reverse()
 
+        const hmiVersion = appStateFetch.HMIVersion
         const coilBatchName = coilLooper(revLines, 'coilBatch')
         const coilLength = coilLooper(revLines, 'length')
         const coilThickness = coilLooper(revLines, 'thickness')
         let coilWidth = coilLooper(revLines, 'width')
 
-        console.log(coilThickness, 'THICKNESS')
 
-        coilWidth === 0 && (coilWidth = 'no width is provided')
+
+        coilWidth === 0 && (coilWidth = 'coil width is not provided')
 
         coilSpecs = {
+          HMI_version: hmiVersion,
           coilBatchName,
           coilLength,
-          coilThickness,
+          coil_thickness: coilThickness,
           coilWidth,
+
         }
 
         res.status(200).json(coilSpecs)
@@ -83,7 +91,6 @@ const parsedCoilLog = async (req, res) => {
     })
   }
 }
-
 
 // // @desc Totals for Coil log
 // // @path /api/v1/log/coil
@@ -108,7 +115,6 @@ const parsedCoilLog = async (req, res) => {
 //           logger.log(line)
 //         }
 
-
 //         res.status(200).json(lines)
 //       } catch (err) {
 //         res.status(500).json({ error: err })
@@ -116,7 +122,6 @@ const parsedCoilLog = async (req, res) => {
 //     })
 //   }
 // }
-
 
 const logController = { coilLog, parsedCoilLog }
 module.exports = logController

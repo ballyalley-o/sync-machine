@@ -1,18 +1,17 @@
-const readerRouter = require('./reader.js')
+const appStateRouter = require('./app-state.js')
 const analogRouter = require('./analog.js')
 const logRouter = require('./log.js')
+// @globals
+const {PATH} = require('../constants')
 
-const apiRoot = process.env.API_ROOT
-
-const readerRoutes = readerRouter
+const appStateRoutes = appStateRouter
 const analogRoutes = analogRouter
 const logRoutes = logRouter
 
-
 const mainRoute = (app) => {
-  app.use(`/api/reader`, readerRoutes),
-  app.use(`/api/analog`, analogRoutes)
-  app.use(`/api/log`, logRoutes)
+  app.use(PATH.reader, appStateRoutes)
+  app.use(PATH.analog, analogRoutes)
+  app.use(PATH.log, logRoutes)
 }
 
 module.exports = mainRoute

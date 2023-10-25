@@ -1,5 +1,5 @@
 module.exports = {
-  readerController: require('./reader'),
+  readerController: require('./app-state'),
   analogController: require('./analog'),
   logController: require('./log'),
 }

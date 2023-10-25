@@ -1,0 +1,1 @@
+exports.USER = process.env.USERPROFILE

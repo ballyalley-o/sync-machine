@@ -4,7 +4,7 @@ const express = require('express')
 const router = express.Router()
 
 /**
- * @path - baseUrl/api/v1/reader
+ * @path - baseUrl/api/v1/app-state
  */
 router.get('/state', analogController.analog_reader)
 
