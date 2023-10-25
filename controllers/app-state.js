@@ -9,6 +9,7 @@ const { GLOBAL } = require('../config')
 
 const USERPROFILE = GLOBAL.userProfile
 let totalSum
+let coilSpecs
 
 
 // @desc Reader for Production log
@@ -199,6 +200,8 @@ const extract = async (req, res ) => {
         logger.log(lines)
         const components = lines.length
 
+        //hmi version
+        const HMIVersion= jsonData.config.ConfigurationFormat.HLCVersion
         //  collect Data
         const lengthTotal = logLooper(lines, 'length')
         const secsTotal = logLooper(lines, 'time')
@@ -209,11 +212,23 @@ const extract = async (req, res ) => {
         const wasteInMeters = wasteTotal / 1000
         const secsPerComponent = secsTotal / components
         const totalInMeters = mmToM + wasteInMeters
-
         const graphAvg = lengthTotal / secsPerComponent
 
+        // coil properties
+        const coilOuterDiameter=jsonData.config.appStateConfigParams.coilOuterDiameter
+        const coilInnerDiameter=jsonData.config.appStateConfigParams.coilInnerDiameter
+        const coilThickness = jsonData.config.appStateConfigParams.coilThickness
+        const coilLength = jsonData.config.appStateConfigParams.coilLength
+        const coilWidth = jsonData.config.appStateConfigParams.coilWidth
+        const coilWeight = jsonData.config.appStateConfigParams.coilWeight
+        const coilCoating = jsonData.config.appStateConfigParams.coilCoating
+        const previousCoilBatchName = jsonData.config.appStateConfigParams.previousCoilBatchName
+
+        // coil length live form
+        const coilLengthEq = `${coilLength} = π(${coilOuterDiameter}² - ${coilInnerDiameter}²) / 4(${coilThickness}) * 1000`
+
         totalSum = {
-          HMIVersion: jsonData.config.ConfigurationFormat.HLCVersion,
+
           sequenceNumber: jsonData.componentSequenceNumberCounter,
           LogFileName: promisePath,
           graphAverage: graphAvg,
@@ -227,7 +242,18 @@ const extract = async (req, res ) => {
           seconds: secsTotal,
           secsPerComponent,
         }
-        res.status(200).json(totalSum)
+
+        coilSpecs = {
+          length: coilLength,
+          outer_diameter: coilOuterDiameter,
+          inner_diameter: coilInnerDiameter,
+          thickness: coilThickness,
+          width: coilWidth,
+          weight: coilWeight,
+          coating: coilCoating,
+          previous_batch: previousCoilBatchName,
+        }
+        res.status(200).json({ HMIVersion, totalSum, coilSpecs, coilLengthEq })
       } catch (err) {
         res.status(500).json({ error: err.message })
       }
