@@ -12,9 +12,9 @@ router.get('/watch', appStateController.watcher)
 router.get('/txt', appStateController.readerTXT)
 // TODO: create a path for each logType
 // router.get('/erp', readerController.liveWatchErp)
-router.get('/erpLatest', appStateController.erpLive)
+router.get('/extract', appStateController.extract)
 router.get('/latest', appStateController.latestLog)
-router.get('/winState', appStateController.winState_reader)
+router.get('/win', appStateController.winState_reader)
 router.get('/coil', appStateController.coilWatcher)
 
 const appStateRouter = router

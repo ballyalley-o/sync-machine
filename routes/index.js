@@ -9,7 +9,7 @@ const analogRoutes = analogRouter
 const logRoutes = logRouter
 
 const mainRoute = (app) => {
-  app.use(PATH.reader, appStateRoutes)
+  app.use(PATH.app_state, appStateRoutes)
   app.use(PATH.analog, analogRoutes)
   app.use(PATH.log, logRoutes)
 }

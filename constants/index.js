@@ -1,3 +1,4 @@
 module.exports = {
-    PATH: require('./path')
+    PATH: require('./path'),
+    URL: require('./url')
 }

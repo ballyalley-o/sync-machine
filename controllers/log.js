@@ -3,8 +3,12 @@ const fetch = require('node-fetch')
 const { logger, coilLooper } = require('../middleware')
 const { paths, logLive } = require('../utils')
 const { GLOBAL } = require('../config')
+const { URL } = require('../constants')
 
 const USERPROFILE = GLOBAL.userProfile
+
+const urlPath = URL.app_state.extract
+console.log(urlPath)
 
 let coilSpecs
 let jsonData
@@ -41,7 +45,7 @@ const coilLog = async (req, res) => {
 }
 
 // @desc Totals for Coil log
-// @path /api/v1/log/parsedCoilLog
+// @path /api/v1/log/parsed-coil-log
 // @access Public [not implemented]
 const parsedCoilLog = async (req, res) => {
   const filePath = await paths.livePath('coil', 'txt').then((result) => {
@@ -50,7 +54,7 @@ const parsedCoilLog = async (req, res) => {
     return promisePath
   })
 
-  const coilState = await fetch(`http://localhost:3000/api/0.0.1/app-state/erpLatest`, {
+  const coilState = await fetch(URL.app_state.extract, {
     method: 'GET',
   })
     const appStateFetch = await coilState.json()

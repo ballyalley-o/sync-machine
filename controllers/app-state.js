@@ -9,6 +9,8 @@ const { GLOBAL } = require('../config')
 
 const USERPROFILE = GLOBAL.userProfile
 let totalSum
+
+
 // @desc Reader for Production log
 // @file appState.json
 // @path /api/v1/app-state
@@ -149,7 +151,7 @@ const latestLog = async (req, res) => {
 // @desc Totals for ERP log
 // @path /api/v1/app-state/erpLatest
 // @access Public [not implemented]
-const erpLive = async (req, res ) => {
+const extract = async (req, res ) => {
   if (USERPROFILE) {
     // grab some data from appstate.json
     let appStatePath
@@ -321,7 +323,7 @@ const appStateController = {
   watcher,
   readerTXT,
   readerErpTXT,
-  erpLive,
+  extract,
   coilWatcher,
   latestLog,
   winState_reader,

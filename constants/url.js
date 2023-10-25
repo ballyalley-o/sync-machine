@@ -1,23 +1,23 @@
-const {PATH} = require('./path')
+const PATH = require('./path')
+const {GLOBAL} = require('../config')
 
 const LOG = {
-  erp: '/erpLatest',
   coil: '/coil',
   coil_parsed: '/parsed-coil-log',
 }
 
 
 const APPSTATE ={
-
+  extract: '/extract'
 }
 
 const URL = {
   log: {
-    erp: PATH.log + LOG.coil_parsed
+    erp: PATH.log + LOG.coil_parsed,
   },
-  app_state : {
-
-  }
+  app_state: {
+    extract: GLOBAL.api + PATH.app_state + APPSTATE.extract,
+  },
 }
 
 module.exports = URL
