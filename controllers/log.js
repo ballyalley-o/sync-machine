@@ -1,7 +1,7 @@
 const fs = require('fs')
 const fetch = require('node-fetch')
 const { logger, coilLooper } = require('../middleware')
-const { paths, logLive } = require('../utils')
+const { paths, logLive, nuller } = require('../utils')
 const { GLOBAL } = require('../config')
 const { URL } = require('../constants')
 
@@ -69,23 +69,32 @@ const parsedCoilLog = async (req, res) => {
         const lines = data.split('\n')
         const revLines = lines.reverse()
 
+        console.log(appStateFetch, 'APP STATE FETCH')
+        // appstate fetch
         const hmiVersion = appStateFetch.HMIVersion
+        const coilCoating = appStateFetch.config.appStateConfigParams.coilCoating
+        const coilInnerDiameter =
+          appStateFetch.appStateConfigParams.coilInnerDiameter
+        const coilOuterDiameter =
+          appStateFetch.appStateConfigParams.coilInnerDiameter
+
+
         const coilBatchName = coilLooper(revLines, 'coilBatch')
         const coilLength = coilLooper(revLines, 'length')
         const coilThickness = coilLooper(revLines, 'thickness')
         let coilWidth = coilLooper(revLines, 'width')
 
 
+        coilOuterDiameter === null && (coilOuterDiameter = 'coil outer diameter not provided')
+        // coilWidth === 0 && (coilWidth = 'coil width is not provided')
 
-        coilWidth === 0 && (coilWidth = 'coil width is not provided')
 
         coilSpecs = {
           HMI_version: hmiVersion,
           coilBatchName,
           coilLength,
           coil_thickness: coilThickness,
-          coilWidth,
-
+          coilWidth
         }
 
         res.status(200).json(coilSpecs)
