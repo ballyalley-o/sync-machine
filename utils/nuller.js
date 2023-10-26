@@ -1,5 +1,8 @@
 const nuller = (prop) => {
-   return  prop === 0 && (prop = `${prop} is not provided`)
+    if (prop === null || prop == "" || prop == undefined) {
+        return 'value is not provided'
+    }
+    return prop
 }
 
 
