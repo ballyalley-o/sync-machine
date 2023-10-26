@@ -5,12 +5,10 @@ const logRouter = require('./log.js')
 const {PATH} = require('../constants')
 
 const appStateRoutes = appStateRouter
-const analogRoutes = analogRouter
 const logRoutes = logRouter
 
 const mainRoute = (app) => {
   app.use(PATH.app_state, appStateRoutes)
-  app.use(PATH.analog, analogRoutes)
   app.use(PATH.log, logRoutes)
 }
 
