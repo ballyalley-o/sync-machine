@@ -222,13 +222,13 @@ const extract = async (req, res ) => {
         const coilWidth = jsonData.config.appStateConfigParams.coilWidth
         const coilWeight = jsonData.config.appStateConfigParams.coilWeight
         const coilCoating = jsonData.config.appStateConfigParams.coilCoating
+        const coilBatchName = jsonData.config.appStateConfigParams.coilBatchName
         const previousCoilBatchName = jsonData.config.appStateConfigParams.previousCoilBatchName
 
         // coil length live form
         const coilLengthEq = `${coilLength} = π(${coilOuterDiameter}² - ${coilInnerDiameter}²) / 4(${coilThickness}) * 1000`
 
         totalSum = {
-
           sequenceNumber: jsonData.componentSequenceNumberCounter,
           LogFileName: promisePath,
           graphAverage: graphAvg,
@@ -244,6 +244,7 @@ const extract = async (req, res ) => {
         }
 
         coilSpecs = {
+          batch: coilBatchName,
           length: coilLength,
           outer_diameter: coilOuterDiameter,
           inner_diameter: coilInnerDiameter,

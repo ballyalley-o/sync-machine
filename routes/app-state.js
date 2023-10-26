@@ -1,4 +1,4 @@
-const { appStateController } = require('../controllers')
+const { appStateController, analogController } = require('../controllers')
 const express = require('express')
 
 const router = express.Router()
@@ -16,6 +16,7 @@ router.get('/extract', appStateController.extract)
 router.get('/latest', appStateController.latestLog)
 router.get('/win', appStateController.winState_reader)
 router.get('/coil', appStateController.coilWatcher)
+router.get('/analog', analogController.analog_reader)
 
 const appStateRouter = router
 module.exports = appStateRouter

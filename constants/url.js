@@ -15,11 +15,11 @@ const LOG = {
   coil_parsed: 'parsed-coil-log',
 }
 
-
 const APPSTATE ={
   extract: 'extract',
   latest: 'latest',
-  win: 'win'
+  win: 'win',
+  analog: 'analog'
 }
 
 const URL = {
@@ -31,7 +31,8 @@ const URL = {
     this: absPath(PATH.app_state),
     extract: absPath(PATH.app_state, APPSTATE.extract),
     latest: absPath(PATH.app_state, APPSTATE.latest),
-    win: absPath(PATH.app_state, APPSTATE.win)
+    win: absPath(PATH.app_state, APPSTATE.win),
+    analog: absPath(PATH.app_state, APPSTATE.analog)
   },
 }
 
