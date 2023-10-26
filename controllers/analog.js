@@ -2,14 +2,14 @@ const fs = require('fs')
 const path = require('path')
 const { logger, logLooper, analogLooper } = require('../middleware')
 const { paths, logLive } = require('../utils')
-const { global } = require('../constants')
+const { GLOBAL } = require('../config')
 
 
-const USERPROFILE = global.userProfile
+const USERPROFILE = GLOBAL.userProfile
 let totalSum
 // @desc Reader for Production log
 // @file appState.json
-// @path /api/v1/reader
+// @path /api/v1/app-state
 // @access Public [not implemented]
 const analog_reader = async (req, res) => {
   if (USERPROFILE) {

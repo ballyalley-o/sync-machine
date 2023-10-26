@@ -4,9 +4,9 @@ const express = require('express')
 const router = express.Router()
 
 /**
- * @path - baseUrl/api/v1/reader
+ * @path - baseUrl/api/0.0.1/analog
  */
-router.get('/state', analogController.analog_reader)
+router.get('/', analogController.analog_reader)
 
 
 const analogRouter = router

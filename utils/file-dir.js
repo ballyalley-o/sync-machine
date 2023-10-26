@@ -1,11 +1,11 @@
 const path = require('path')
 const fileName = require('./file-path')
-const { global } = require('../constants')
+const { GLOBAL } = require('../config')
 const logLive = require('./latest')
 const appStateLive = require('./appState-latest')
 const { logger, asyncHandler } = require('../middleware')
 
-const USERPROFILE = global.userProfile
+const USERPROFILE = GLOBAL.userProfile
 
 const dynamicRootPath = (fileName) =>
   path.join(USERPROFILE, 'AppData', 'Roaming', 'HowickHLCv3', fileName)

@@ -4,14 +4,17 @@ const fs = require('fs')
 // const io = require('../app')
 const {logger, logLooper} = require('../middleware')
 const { paths, logLive } = require('../utils')
-const { global } = require('../constants')
+const { GLOBAL } = require('../config')
 
 
-const USERPROFILE = global.userProfile
+const USERPROFILE = GLOBAL.userProfile
 let totalSum
+let coilSpecs
+
+
 // @desc Reader for Production log
 // @file appState.json
-// @path /api/v1/reader
+// @path /api/v1/app-state
 // @access Public [not implemented]
 const reader = async (req, res) => {
   if (USERPROFILE) {
@@ -94,7 +97,7 @@ const readerTXT = async (req, res ) => {
 }
 
 // @desc Reader for ERP log
-// @path /api/v1/reader/erp
+// @path /api/v1/app-state/erp
 // @access Public [not implemented]
 const readerErpTXT = async (req, res) => {
 
@@ -121,7 +124,7 @@ const readerErpTXT = async (req, res) => {
 }
 
 // @desc --
-// @path /api/v1/reader/latest
+// @path /api/v1/app-state/latest
 // @access Public [not implemented]
 const latestLog = async (req, res) => {
  try {
@@ -147,9 +150,9 @@ const latestLog = async (req, res) => {
 
 
 // @desc Totals for ERP log
-// @path /api/v1/reader/erpLatest
+// @path /api/v1/app-state/erpLatest
 // @access Public [not implemented]
-const erpLive = async (req, res ) => {
+const extract = async (req, res ) => {
   if (USERPROFILE) {
     // grab some data from appstate.json
     let appStatePath
@@ -197,6 +200,8 @@ const erpLive = async (req, res ) => {
         logger.log(lines)
         const components = lines.length
 
+        //hmi version
+        const HMIVersion= jsonData.config.ConfigurationFormat.HLCVersion
         //  collect Data
         const lengthTotal = logLooper(lines, 'length')
         const secsTotal = logLooper(lines, 'time')
@@ -207,11 +212,23 @@ const erpLive = async (req, res ) => {
         const wasteInMeters = wasteTotal / 1000
         const secsPerComponent = secsTotal / components
         const totalInMeters = mmToM + wasteInMeters
-
         const graphAvg = lengthTotal / secsPerComponent
 
+        // coil properties
+        const coilOuterDiameter=jsonData.config.appStateConfigParams.coilOuterDiameter
+        const coilInnerDiameter=jsonData.config.appStateConfigParams.coilInnerDiameter
+        const coilThickness = jsonData.config.appStateConfigParams.coilThickness
+        const coilLength = jsonData.config.appStateConfigParams.coilLength
+        const coilWidth = jsonData.config.appStateConfigParams.coilWidth
+        const coilWeight = jsonData.config.appStateConfigParams.coilWeight
+        const coilCoating = jsonData.config.appStateConfigParams.coilCoating
+        const coilBatchName = jsonData.config.appStateConfigParams.coilBatchName
+        const previousCoilBatchName = jsonData.config.appStateConfigParams.previousCoilBatchName
+
+        // coil length live form
+        const coilLengthEq = `${coilLength} = π(${coilOuterDiameter}² - ${coilInnerDiameter}²) / 4(${coilThickness}) * 1000`
+
         totalSum = {
-          HMIVersion: jsonData.config.ConfigurationFormat.HLCVersion,
           sequenceNumber: jsonData.componentSequenceNumberCounter,
           LogFileName: promisePath,
           graphAverage: graphAvg,
@@ -225,7 +242,19 @@ const erpLive = async (req, res ) => {
           seconds: secsTotal,
           secsPerComponent,
         }
-        res.status(200).json(totalSum)
+
+        coilSpecs = {
+          batch: coilBatchName,
+          length: coilLength,
+          outer_diameter: coilOuterDiameter,
+          inner_diameter: coilInnerDiameter,
+          thickness: coilThickness,
+          width: coilWidth,
+          weight: coilWeight,
+          coating: coilCoating,
+          previous_batch: previousCoilBatchName,
+        }
+        res.status(200).json({ HMIVersion, totalSum, coilSpecs, coilLengthEq })
       } catch (err) {
         res.status(500).json({ error: err.message })
       }
@@ -234,7 +263,7 @@ const erpLive = async (req, res ) => {
 }
 
 // @desc Watcher for logs
-// @path /api/v1/reader/watch
+// @path /api/v1/app-state/watch
 // @access Public [not implemented]
 const watcher = async (req, res) => {
   if (USERPROFILE) {
@@ -316,14 +345,14 @@ const coilWatcher = async (req, res) => {
   }
 }
 
-const readerController = {
+const appStateController = {
   reader,
   watcher,
   readerTXT,
   readerErpTXT,
-  erpLive,
+  extract,
   coilWatcher,
   latestLog,
   winState_reader,
 }
-module.exports = readerController
+module.exports = appStateController

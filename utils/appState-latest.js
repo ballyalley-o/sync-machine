@@ -1,9 +1,9 @@
 const fs = require('fs')
 const path = require('path')
-const { global } = require('../constants')
+const { GLOBAL } = require('../config')
 const { logger } = require('../middleware')
 
-const USERPROFILE = global.userProfile
+const USERPROFILE = GLOBAL.userProfile
 
 // folder path to logs to fetch the latest log
 const appStatePath = path.join(

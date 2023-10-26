@@ -3,11 +3,13 @@ const dotenv = require('dotenv')
 const express = require('express')
 require('colors')
 const PATH = require('../constants/path.js')
-const reader = require('../controllers/reader.js')
+const appState = require('../controllers/app-state.js')
 const mainRoute = require('../routes/index.js')
+const logger = require('../middleware/logger.js')
+const GLOBAL = require('./global.js')
 dotenv.config()
 
-const PORT = 3000
+const PORT = GLOBAL.port
 
 class App {
   constructor() {
@@ -23,7 +25,7 @@ class App {
   start() {
     try {
       this.app.listen(PORT, () => {
-        console.log(`SERVER PORT: ${PORT}`.yellow)
+        logger.log(`SERVER PORT: ${PORT}`.yellow)
         console.log('SERVER STATUS: connected'.yellow)
       })
     } catch (error) {
