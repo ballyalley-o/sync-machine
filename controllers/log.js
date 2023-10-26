@@ -69,32 +69,34 @@ const parsedCoilLog = async (req, res) => {
         const lines = data.split('\n')
         const revLines = lines.reverse()
 
-        console.log(appStateFetch, 'APP STATE FETCH')
-        // appstate fetch
+        // data from extract route
         const hmiVersion = appStateFetch.HMIVersion
-        const coilCoating = appStateFetch.config.appStateConfigParams.coilCoating
-        const coilInnerDiameter =
-          appStateFetch.appStateConfigParams.coilInnerDiameter
-        const coilOuterDiameter =
-          appStateFetch.appStateConfigParams.coilInnerDiameter
+        const coilCoating = appStateFetch.coilSpecs.coating
+        const coilInnerDiameter = appStateFetch.coilSpecs.inner_diameter
+        const coilOuterDiameter = appStateFetch.coilSpecs.outer_diameter
+        const previousBatch = appStateFetch.coilSpecs.previous_batch
+        const coilLengthAppState = appStateFetch.coilSpecs.length
 
-
+        // log extract
         const coilBatchName = coilLooper(revLines, 'coilBatch')
         const coilLength = coilLooper(revLines, 'length')
         const coilThickness = coilLooper(revLines, 'thickness')
         let coilWidth = coilLooper(revLines, 'width')
 
-
         coilOuterDiameter === null && (coilOuterDiameter = 'coil outer diameter not provided')
         // coilWidth === 0 && (coilWidth = 'coil width is not provided')
 
-
         coilSpecs = {
           HMI_version: hmiVersion,
-          coilBatchName,
-          coilLength,
-          coil_thickness: coilThickness,
-          coilWidth
+          batch: nuller(coilBatchName),
+          length_log: coilLength,
+          length_appstate:coilLengthAppState,
+          inner_diameter: coilInnerDiameter,
+          outer_diameter: coilOuterDiameter,
+          thickness: coilThickness,
+          width: coilWidth,
+          coating: coilCoating,
+          previous_batch: previousBatch,
         }
 
         res.status(200).json(coilSpecs)
