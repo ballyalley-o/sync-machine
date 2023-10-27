@@ -9,7 +9,6 @@ const absPath = (...params) => {
   return API + params.join('/')
 }
 
-
 const LOG = {
   coil: 'coil',
   coil_parsed: 'parsed-coil-log',
@@ -19,7 +18,8 @@ const APPSTATE ={
   extract: 'extract',
   latest: 'latest',
   win: 'win',
-  analog: 'analog'
+  analog: 'analog',
+  frames: 'frames'
 }
 
 const URL = {
@@ -32,7 +32,8 @@ const URL = {
     extract: absPath(PATH.app_state, APPSTATE.extract),
     latest: absPath(PATH.app_state, APPSTATE.latest),
     win: absPath(PATH.app_state, APPSTATE.win),
-    analog: absPath(PATH.app_state, APPSTATE.analog)
+    analog: absPath(PATH.app_state, APPSTATE.analog),
+    frames: absPath(PATH.app_state, APPSTATE.frames)
   },
 }
 
