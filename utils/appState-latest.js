@@ -65,8 +65,11 @@ const appStateLive = (type, ext) => {
       if (err) {
         logger.error(err)
         reject(err)
+      } else if (latestState[1] === 'Howick.ini') {
+          logger.log(`INI FILE: ${latestState[1]}`)
+          resolve(latestState[1])
       } else {
-        logger.info('APP-STATE FILE: ', latestState)
+        logger.info('FILE: ', latestState)
         resolve(latestState)
       }
     })

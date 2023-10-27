@@ -10,6 +10,16 @@ const USERPROFILE = GLOBAL.userProfile
 const dynamicRootPath = (fileName) =>
   path.join(USERPROFILE, 'AppData', 'Roaming', 'HowickHLCv3', fileName)
 
+
+const iniPath = path.join(
+  USERPROFILE,
+  'AppData',
+  'Roaming',
+  'HowickHLCv3',
+  'Howick.ini'
+)
+
+
 const dynamicPath_txt = path.join(
   USERPROFILE,
   'AppData',
@@ -18,6 +28,8 @@ const dynamicPath_txt = path.join(
   'logs',
   'OPERATIONS_log_2023-10.txt'
 )
+
+
 const erpPath_txt = path.join(
   USERPROFILE,
   'AppData',
@@ -72,5 +84,6 @@ const paths = {
   erpPath_txt,
   livePath,
   rootPath,
+  iniPath,
 }
 module.exports = paths
