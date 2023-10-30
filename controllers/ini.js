@@ -3,7 +3,7 @@ const fs = require('fs')
 // const chokidar = require('chokidar')
 // const io = require('../app')
 const { logger } = require('../middleware')
-const { paths } = require('../utils')
+const { paths, updatedParams } = require('../utils')
 const { GLOBAL } = require('../config')
 const { BURN_IN_PARAMS, RESPONSE } = require('../constants')
 
@@ -131,6 +131,8 @@ const iniSimulation = async (req, res) => {
         }
         // Join the modified lines back into a single string
         const modifiedData = modifiedLines.join('\n')
+
+        const changes = updatedParams(data, modifiedData)
         // const parsedModData = JSON.stringify(modifiedData)
         // Write the modified data back to the file
         fs.writeFile(paths.testFilesPath, modifiedData, (writeErr) => {
@@ -139,7 +141,7 @@ const iniSimulation = async (req, res) => {
           } else {
             res.status(201).json({
               message: RESPONSE.iniSimulation,
-              params: modifiedData,
+              params: changes,
             })
           }
         })
