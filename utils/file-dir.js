@@ -7,6 +7,10 @@ const { logger, asyncHandler } = require('../middleware')
 
 const USERPROFILE = GLOBAL.userProfile
 
+
+
+const testFilesPath = path.join(__dirname, '..', 'data', 'Howick.ini')
+
 const dynamicRootPath = (fileName) =>
   path.join(USERPROFILE, 'AppData', 'Roaming', 'HowickHLCv3', fileName)
 
@@ -79,6 +83,7 @@ async function rootPath(fileName, ext) {
 
 
 const paths = {
+  testFilesPath,
   dynamicRootPath,
   dynamicPath_txt,
   erpPath_txt,
