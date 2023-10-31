@@ -8,7 +8,6 @@ const { URL } = require('../constants')
 const USERPROFILE = GLOBAL.userProfile
 
 const urlPath = URL.app_state.extract
-console.log(urlPath)
 
 let coilSpecs
 let jsonData
