@@ -1,3 +1,5 @@
+
+//-----------------------------SANDBOX: just for snippets and testing
 // const http = require('http')
 // const express = require('express')
 // const app = express()
@@ -168,3 +170,64 @@ for (const param in updatedIniObject) {
 
 // Display the list of changed parameters
 console.log(changedParams);
+
+
+function compareArrays(prevArr, modArr) {
+  const changes = []
+
+  const prevArrSplit = prevArr.split('\n')
+  const modArrSplit = modArr.split('\n')
+
+  for (let i = 0; i < prevArrSplit.length || i < modArrSplit.length; i++) {
+    if (i < prevArrSplit.length && i < modArrSplit.length) {
+      if (prevArrSplit[i] !== modArrSplit[i]) {
+        changes.push(
+          `Line ${i + 1}: '${prevArrSplit[i]}' -> '${modArrSplit[i]}'`
+        )
+      }
+    } else if (i < prevArrSplit.length) {
+      changes.push(`Line ${i + 1}: '${prevArrSplit[i]}' -> Removed`)
+    } else {
+      changes.push(`Line ${i + 1}: Added '${modArrSplit[i]}'`)
+    }
+  }
+
+  return changes
+}
+
+// Compare the arrays and get the changed lines
+const changedLines = compareArrays(oldArray, updatedArray)
+
+// Output the changed lines
+console.log(changedLines)
+// _____________________________________________________________________
+
+let compare
+let counter = 0
+
+// if (modifiedIni) {
+//   prevIniJoin = prevIni.join('\n')
+//   modIniJoin = modifiedIni.join('\n')
+//   compare = compareArr(prevIniJoin, modIniJoin) // Assuming compareArr is a function to compare the two strings
+// }
+
+// // Check if the data has changed
+// if (compare) {
+//   fs.writeFile(paths.testFilesPath, modifiedData, (writeErr) => {
+//     if (writeErr) {
+//       res.status(500).json({ error: writeErr.message })
+//     } else {
+//       res.status(201).json({
+//         message: RESPONSE.iniSimulation,
+//         params: { modifiedData, data },
+//         counter,
+//       })
+//     }
+//   })
+// } else {
+//   res.status(200).json({
+//     message: 'No Changes found',
+//     params: [],
+//     counter,
+//   })
+// }
