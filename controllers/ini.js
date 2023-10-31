@@ -2,8 +2,8 @@ const fs = require('fs')
 // const path = require('path')
 // const chokidar = require('chokidar')
 // const io = require('../app')
-const { logger } = require('../middleware')
-const { paths, updatedParams } = require('../utils')
+const { logger, iniLooper } = require('../middleware')
+const { paths, compareArr } = require('../utils')
 const { GLOBAL } = require('../config')
 const { BURN_IN_PARAMS, RESPONSE } = require('../constants')
 
@@ -14,11 +14,6 @@ const USERPROFILE = GLOBAL.userProfile
 // @access Private - Dev [not implemented]
 const iniExtract = async (req, res) => {
   if (USERPROFILE) {
-    // await paths.rootPath('howick', 'ini').then((result) => {
-    //   iniPath = result
-    //   logger.log(`INI PATH: ${iniPath}`)
-    //   return iniPath
-    // })
 
     fs.readFile(paths.iniPath, 'utf8', (err, data) => {
       if (err) {
@@ -33,8 +28,8 @@ const iniExtract = async (req, res) => {
              const equalSign = line.replace(/=/g, ':')
              iniLines.push(equalSign)
         }
-        // parse ini to push to array
 
+        // parse ini to push to array
         res.status(200).json(iniLines)
       } catch (err) {
         logger.error(err)
@@ -44,6 +39,8 @@ const iniExtract = async (req, res) => {
   }
 }
 
+let prevIni = []
+let modifiedIni = []
 
 // @desc prepare ini for Simulation
 // @path /api/0.0.1/ini/sim
@@ -57,27 +54,24 @@ const iniSimulation = async (req, res) => {
       }
       try {
         let lines = data.split('\n')
-        const modifiedLines = []
-
-        const prevIni = []
         prevIni.push(lines)
 
         for (const line of lines) {
           let modifiedLine = line
 
-          const isBurnIn = line.includes(BURN_IN_PARAMS.burnIn)
-          if (isBurnIn) {
-            const parts = line.split('=')
-            if (parts.length === 2) {
-              const boolValue = JSON.parse(parts[1].trim())
-
-              // convert burnin to true
-              if (boolValue == false) {
-                parts[1] = 'true'
-                modifiedLine = parts.join('=')
-              }
-            }
-          }
+          iniLooper.iniBool('burnIn', modifiedLine, line)
+          // const isBurnIn = line.includes(BURN_IN_PARAMS.burnIn)
+          // if (isBurnIn) {
+          //   const parts = line.split('=')
+          //   if (parts.length === 2) {
+          //     const boolValue = JSON.parse(parts[1].trim())
+          //     // convert burnin to true
+          //     if (boolValue == false) {
+          //       parts[1] = 'true'
+          //       modifiedLine = parts.join('=')
+          //     }
+          //   }
+          // }
 
           // change target window value to 20
           const targetWindow = line.match(BURN_IN_PARAMS.targetWindow)
@@ -100,7 +94,6 @@ const iniSimulation = async (req, res) => {
             const parts = line.split('=')
             if (parts.length === 2) {
               const timeValue = parseFloat(parts[1].trim())
-
               // convert burnin to true
               if (timeValue < 300) {
                 parts[1] = 300
@@ -127,24 +120,48 @@ const iniSimulation = async (req, res) => {
               }
             }
           }
-          modifiedLines.push(modifiedLine)
-        }
-        // Join the modified lines back into a single string
-        const modifiedData = modifiedLines.join('\n')
 
-        const changes = updatedParams(data, modifiedData)
-        // const parsedModData = JSON.stringify(modifiedData)
-        // Write the modified data back to the file
-        fs.writeFile(paths.testFilesPath, modifiedData, (writeErr) => {
-          if (writeErr) {
-            res.status(500).json({ error: writeErr.message })
-          } else {
-            res.status(201).json({
-              message: RESPONSE.iniSimulation,
-              params: changes,
-            })
+          modifiedIni.push(modifiedLine)
+        }
+
+          let modifiedData
+          let counter = 0
+          // Join the modified lines back into a single string
+          if (data !== modifiedData) {
+            counter += 1
+            modifiedData = modifiedIni.join('\n')
           }
-        })
+
+        prevIniJoin = prevIni.join('\n')
+        modIniJoin = modifiedIni.join('\n')
+
+        //compare purposes only: to avoid duplicating the data
+        let prevLength = data.length
+        let modLength = modifiedData.length
+
+        // Write the modified data back to the file
+        if (prevLength > modLength) {
+
+          const changes = compareArr(data, modifiedData)
+
+
+          fs.writeFile(paths.testFilesPath, modifiedData, (writeErr) => {
+            if (writeErr) {
+              res.status(500).json({ error: writeErr.message })
+            } else {
+              modifiedIni = []
+              res.status(201).json({
+                message: RESPONSE.iniSimulation,
+                params: changes,
+              })
+            }
+          })
+        } else {
+          res.status(200).json({
+            message: RESPONSE.noChanges,
+            params: [],
+          })
+        }
       } catch (err) {
         logger.error(err)
         res.status(500).json({ error: err.message })
@@ -153,7 +170,53 @@ const iniSimulation = async (req, res) => {
   }
 }
 
+// TODO: ======================================================
+
+// @desc compare ini
+// @path /api/0.0.1/ini/compare
+// @access Private - Dev [not implemented]
+const iniCompare = async (req, res) => {
+  let iniOne = []
+  let iniTwo = []
+
+  if (USERPROFILE) {
+    fs.readFile(paths.iniPath, 'utf8', (err, data) => {
+      if (err) {
+        res.status(500).json({ error: err.message })
+      }
+      try {
+        const lines = data.split('\n')
+        // push arr one,
+        return iniOne.push(lines)
+      } catch (err) {
+        logger.error(err)
+      }
+    })
+  }
+
+  fs.readFile(paths.testFilesPath, 'utf8', (err, data) => {
+    if (err) {
+      res.status(500).json({ error: err.message })
+    }
+    try {
+      const lines = data.split('\n')
+      // push arr one,
+      return iniTwo.push(lines)
+
+    } catch (err) {
+      logger.error(err)
+      res.status(500).json({ error: err.message })
+    }
+  })
+
+  const comparisons = compareArr(iniOne, iniTwo)
+
+  res.status(200).json({
+    message: 'CHANGES',
+    comparisons: { iniOne: iniOne, iniTwo: iniTwo },
+  })
+}
 
 
-const iniController = { iniExtract, iniSimulation }
+const iniController = { iniExtract, iniSimulation, iniCompare }
 module.exports = iniController
