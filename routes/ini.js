@@ -9,6 +9,7 @@ const router = express.Router()
  */
 router.get('/', iniController.iniExtract)
 router.get('/sim', iniController.iniSimulation)
+router.get('/compare', iniController.iniCompare)
 
 
 const iniRouter = router
