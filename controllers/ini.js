@@ -59,76 +59,32 @@ const iniSimulation = async (req, res) => {
         for (const line of lines) {
           let modifiedLine = line
 
-          iniLooper.iniBool('burnIn', modifiedLine, line)
-          // const isBurnIn = line.includes(BURN_IN_PARAMS.burnIn)
-          // if (isBurnIn) {
-          //   const parts = line.split('=')
-          //   if (parts.length === 2) {
-          //     const boolValue = JSON.parse(parts[1].trim())
-          //     // convert burnin to true
-          //     if (boolValue == false) {
-          //       parts[1] = 'true'
-          //       modifiedLine = parts.join('=')
-          //     }
-          //   }
-          // }
+          // change burn in param to true if not already
+          let burnInValue = iniLooper.iniSimUpdate('burnIn', modifiedLine, line)
+          modifiedLine = burnInValue
 
-          // change target window value to 20
-          const targetWindow = line.match(BURN_IN_PARAMS.targetWindow)
-          if (targetWindow) {
-            const parts = line.split('=')
-            if (parts.length === 2) {
-              const targetWinValue = parseFloat(parts[1].trim())
-
-              // convert burnin to true
-              if (targetWinValue < 20) {
-                parts[1] = 20
-                modifiedLine = parts.join('=')
-              }
-            }
-          }
+          // change target value param to 20 if not already
+          let targetValue = iniLooper.iniSimUpdate(
+            'targetWindow',
+            modifiedLine,
+            line
+          )
+          modifiedLine = targetValue
 
           // change time param to 300 if not already
-          const time = line.match(BURN_IN_PARAMS.time)
-          if (time) {
-            const parts = line.split('=')
-            if (parts.length === 2) {
-              const timeValue = parseFloat(parts[1].trim())
-              // convert burnin to true
-              if (timeValue < 300) {
-                parts[1] = 300
-                modifiedLine = parts.join('=')
-              }
-            }
-          }
+          let timeValue = iniLooper.iniSimUpdate('time', modifiedLine, line)
+          modifiedLine = timeValue
 
-          //  change the values for proxes and solenoids
-          for (const param of BURN_IN_PARAMS.zeros) {
-            const PARAM = line.includes(param)
-
-            if (PARAM) {
-              // Split the line to separate the parameter name and its value
-              const parts = line.split('=')
-              if (parts.length === 2) {
-                // Trim and check if it's a valid number
-                const value = parseFloat(parts[1].trim())
-                if (!isNaN(value) && value !== 0) {
-                  // Change the value to 0
-                  parts[1] = '0'
-                  modifiedLine = parts.join('=')
-                }
-              }
-            }
-          }
+          //  change the values for proxes and solenoids to 0 if not already
+          let zerosValue = iniLooper.iniZeros(modifiedLine, line)
+          modifiedLine = zerosValue
 
           modifiedIni.push(modifiedLine)
         }
 
           let modifiedData
-          let counter = 0
           // Join the modified lines back into a single string
           if (data !== modifiedData) {
-            counter += 1
             modifiedData = modifiedIni.join('\n')
           }
 
@@ -139,11 +95,12 @@ const iniSimulation = async (req, res) => {
         let prevLength = data.length
         let modLength = modifiedData.length
 
+        // const currDate = new Date()
+        // const timestamp = currDate.toUTCString()
+
         // Write the modified data back to the file
         if (prevLength > modLength) {
-
           const changes = compareArr(data, modifiedData)
-
 
           fs.writeFile(paths.testFilesPath, modifiedData, (writeErr) => {
             if (writeErr) {
@@ -153,6 +110,7 @@ const iniSimulation = async (req, res) => {
               res.status(201).json({
                 message: RESPONSE.iniSimulation,
                 params: changes,
+                timestamp: GLOBAL.time.custom('akl'),
               })
             }
           })
@@ -160,6 +118,7 @@ const iniSimulation = async (req, res) => {
           res.status(200).json({
             message: RESPONSE.noChanges,
             params: [],
+            timestamp: GLOBAL.time.custom('akl'),
           })
         }
       } catch (err) {
