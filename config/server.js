@@ -4,15 +4,20 @@ const dotenv = require('dotenv')
 const express = require('express')
 const mainRoute = require('../routes/index.js')
 const logger = require('../middleware/logger.js')
+const morgan = require('morgan')
 const GLOBAL = require('./global.js')
 dotenv.config()
 
 const PORT = GLOBAL.port
 
+/**
+ *
+ */
 class App {
   constructor() {
     this.app = express()
     this.app.use(express.json())
+    this.app.use(morgan('short'))
     this.registerRoutes()
   }
 
