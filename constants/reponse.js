@@ -1,6 +1,6 @@
 const RESPONSE = {
-  iniSimulation: 'Parameters are ready for Simulation.',
-  noChanges: 'No Changes found',
+  iniSimulation: 'Ready for simulation.',
+  noChanges: 'No changes found',
 }
 
 module.exports = RESPONSE
