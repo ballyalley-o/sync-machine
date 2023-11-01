@@ -7,8 +7,20 @@ const { logger, asyncHandler } = require('../middleware')
 
 const USERPROFILE = GLOBAL.userProfile
 
+const testFilesPath = path.join(__dirname, '..', 'data', 'Howick.ini')
+
 const dynamicRootPath = (fileName) =>
   path.join(USERPROFILE, 'AppData', 'Roaming', 'HowickHLCv3', fileName)
+
+
+const iniPath = path.join(
+  USERPROFILE,
+  'AppData',
+  'Roaming',
+  'HowickHLCv3',
+  'Howick.ini'
+)
+
 
 const dynamicPath_txt = path.join(
   USERPROFILE,
@@ -18,6 +30,8 @@ const dynamicPath_txt = path.join(
   'logs',
   'OPERATIONS_log_2023-10.txt'
 )
+
+
 const erpPath_txt = path.join(
   USERPROFILE,
   'AppData',
@@ -67,10 +81,12 @@ async function rootPath(fileName, ext) {
 
 
 const paths = {
+  testFilesPath,
   dynamicRootPath,
   dynamicPath_txt,
   erpPath_txt,
   livePath,
   rootPath,
+  iniPath,
 }
 module.exports = paths

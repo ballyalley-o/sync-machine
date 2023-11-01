@@ -3,5 +3,6 @@ module.exports = {
   paths: require('./file-dir'),
   logLive: require('./latest'),
   appStateLive: require('./appState-latest'),
-  nuller: require('./nuller')
+  nuller: require('./nuller'),
+  compareArr: require('./ini-compare'),
 }

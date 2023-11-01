@@ -1,7 +1,4 @@
 const fs = require('fs')
-// const path = require('path')
-// const chokidar = require('chokidar')
-// const io = require('../app')
 const {logger, logLooper} = require('../middleware')
 const { paths, logLive } = require('../utils')
 const { GLOBAL } = require('../config')
@@ -26,24 +23,26 @@ const reader = async (req, res) => {
        try {
          const jsonData = JSON.parse(data)
          logger.log('READER:', jsonData.config.ConfigurationFormat.HLCVersion)
-        //  if (jsonData) {
-        //    const HLCVersion = jsonData.config.ConfigurationFormat.HLCVersion
-        //     return Object.assign({}, totalSum, {
-        //       HMIVersion: HLCVersion,
-        //     })
-        //   }
 
           res.json(jsonData)
 
-       } catch (parseError) {
-         logger.error('Error parsing JSON:', parseError)
-         res.status(500).json({ error: 'Internal server error' })
+       } catch (err) {
+
+         logger.error('Error parsing JSON:', err)
+
+         res
+         .status(500)
+         .json({err: err.message})
        }
      })
   }
 }
 
 
+// @desc Reader for windowState
+// @file appWindowState.json
+// @path /api/v1/app-state/win
+// @access Public [not implemented]
 const winState_reader = async (req, res) => {
   if (USERPROFILE) {
     fs.readFile(
@@ -55,44 +54,20 @@ const winState_reader = async (req, res) => {
           return
         }
         try {
+
           const jsonData = JSON.parse(data)
-          // logger.log('READER:', jsonData.config.ConfigurationFormat.HLCVersion)
-          //  if (jsonData) {
-          //    const HLCVersion = jsonData.config.ConfigurationFormat.HLCVersion
-          //     return Object.assign({}, totalSum, {
-          //       HMIVersion: HLCVersion,
-          //     })
-          //   }
 
           res.json(jsonData)
-        } catch (parseError) {
-          logger.error('Error parsing JSON:', parseError)
-          res.status(500).json({ error: 'Internal server error' })
+        } catch (err) {
+
+          logger.error('Error parsing JSON:', err)
+
+          res
+          .status(500)
+          .json({err: err.message})
         }
       }
     )
-  }
-}
-
-// reader for txt files
-const readerTXT = async (req, res ) => {
-  if (USERPROFILE) {
-    fs.readFile(paths.dynamicPath_txt, 'utf8', (err, data) => {
-      if (err) {
-        res.status(500).json({ error: err})
-        return
-      } try {
-        const lines = data.split('\n')
-
-        for (const line of lines) {
-          logger.log(line)
-        }
-
-        res.status(200).json(lines)
-      } catch (err) {
-        res.status(500).json({ error: err})
-      }
-    })
   }
 }
 
@@ -115,9 +90,13 @@ const readerErpTXT = async (req, res) => {
          }
 
          res.status(200).json(lines)
-       } catch (parseError) {
-         logger.error('Error parsing JSON:', parseError)
-         res.status(500).json({ error: 'Internal server error' })
+       } catch (err) {
+
+         logger.error('Error parsing JSON:', err)
+
+         res
+         .status(500)
+         .json({ error: err.message })
        }
      })
   }
@@ -143,14 +122,14 @@ const latestLog = async (req, res) => {
      const components = lines.length
      console.log(components)
    }
- } catch (error) {
-    res.status(500).json({ error: error.message })
+ } catch (err) {
+    res.status(500).json({ error: err.message })
  }
 }
 
 
-// @desc Totals for ERP log
-// @path /api/v1/app-state/erpLatest
+// @desc Totals and data extactor
+// @path /api/v1/app-state/extract
 // @access Public [not implemented]
 const extract = async (req, res ) => {
   if (USERPROFILE) {
@@ -174,8 +153,12 @@ const extract = async (req, res ) => {
         jsonData = JSON.parse(data)
         return jsonData
       } catch (err) {
+
         logger.error('Error parsing JSON:', err)
-        res.status(500).json({ error: err.message })
+
+        res
+        .status(500)
+        .json({ error: err.message })
       }
     })
 
@@ -197,7 +180,6 @@ const extract = async (req, res ) => {
       }
       try {
         const lines = data.split('\n')
-        logger.log(lines)
         const components = lines.length
 
         //hmi version
@@ -254,20 +236,74 @@ const extract = async (req, res ) => {
           coating: coilCoating,
           previous_batch: previousCoilBatchName,
         }
-        res.status(200).json({ HMIVersion, totalSum, coilSpecs, coilLengthEq })
+        res
+        .status(200)
+        .json({ HMIVersion, totalSum, coilSpecs, coilLengthEq })
       } catch (err) {
-        res.status(500).json({ error: err.message })
+
+        res
+        .status(500)
+        .json({ error: err.message })
       }
     })
   }
 }
 
+
+// @desc extract framesSet
+// @path /api/v1/app-state/frames
+// @access Public [not implemented]
+const frameSetExtract = async (req, res) => {
+  if (USERPROFILE) {
+    let appStatePath
+    let appData
+
+    await paths.rootPath('appState', 'json').then((result) => {
+      appStatePath = result
+      logger.log(appStatePath, 'APP STATE PATH')
+      return appStatePath
+    })
+
+    fs.readFile(appStatePath, 'utf8', (err, data) => {
+      if (err) {
+        res.status(500).json({error: err.message})
+      }
+        try {
+            const jsonData = JSON.parse(data)
+            appData = jsonData.frameSet.frames
+
+            //declare the arr
+            const parentFrameIds = []
+
+            // loop to find the parent id
+            for (let frame = 0; frame < appData.length; frame++) {
+              const parentId = appData[frame].id
+
+
+              parentFrameIds.push({
+                id: parentId
+              })
+            }
+
+
+            res.status(200).json({ appData, parentFrameIds })
+        } catch (err) {
+            logger.error(err)
+            res
+            .status(500)
+            .json({error: err.message})
+        }
+    })
+  }
+}
+
+
 // @desc Watcher for logs
 // @path /api/v1/app-state/watch
 // @access Public [not implemented]
-const watcher = async (req, res) => {
+const logWatcher = async (req, res) => {
   if (USERPROFILE) {
-    const watcher = fs.watch(paths.dynamicRootPath, (eventType, filename) => {
+    const watcher = fs.watch(paths.dynamicRootPath('appState.json'), (eventType, filename) => {
       if (eventType === 'change') {
         try {
           console.log(`${filename} has changed`)
@@ -280,13 +316,20 @@ const watcher = async (req, res) => {
             try {
               const jsonData = JSON.parse(data)
               res.json(jsonData)
-            } catch (parseError) {
+            } catch (err) {
               console.error('Error parsing JSON:', parseError)
-              res.status(500).json({ error: parseError })
+              res
+              .status(500)
+              .json({ error: err.message })
             }
           })
-        } catch (error) {
-          console.log(error)
+        } catch (err) {
+
+          logger.error(err.message)
+          res
+            .status(500)
+            .json({error: err.message})
+
         }
       }
     })
@@ -307,8 +350,11 @@ const watcher = async (req, res) => {
 
 
 // ----------------------------------------------------------------
+// warning: a bit messy, clean-up will be done after
 
-// R&D for sockets
+// @desc R&D for watching coil log
+// @path /api/v1/app-state/coil
+// @access Public [not implemented]
 const coilWatcher = async (req, res) => {
 
   let promisePath
@@ -329,15 +375,24 @@ const coilWatcher = async (req, res) => {
          return
        }
        try {
-         res.status(200).json(data)
+          const lines = data.split('\n')
+
+          res.status(200).json(lines)
        } catch (err) {
          logger.error('Error parsing JSON:', err)
-         res.status(500).json({ error: err.message })
+
+         res
+         .status(500)
+         .json({ error: err.message })
        }
      })
-    } catch (error) {
-      console.error(error)
-      res.status(500).send({ error: error.message })
+    } catch (err) {
+
+      logger.error(err)
+
+      res
+      .status(500)
+      .send({ error: err.message })
     }
   } else {
     console.log('USER PROFILE NOT FOUND')
@@ -347,12 +402,13 @@ const coilWatcher = async (req, res) => {
 
 const appStateController = {
   reader,
-  watcher,
-  readerTXT,
+  logWatcher,
   readerErpTXT,
   extract,
   coilWatcher,
   latestLog,
   winState_reader,
+  frameSetExtract
 }
+
 module.exports = appStateController
