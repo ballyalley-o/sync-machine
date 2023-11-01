@@ -290,3 +290,66 @@ let counter = 0
       //     }
       //   }
       // }
+
+
+      // const fs = require('fs').promises // Use promisified version of fs for async/await
+      // const path = require('path') // Import the 'path' module for file paths
+
+      // const iniCompare = async (req, res) => {
+      //   try {
+      //     if (USERPROFILE) {
+      //       // Assuming USERPROFILE is defined somewhere
+      //       const iniOne = await fs.readFile(paths.iniPath, 'utf8')
+      //       const iniTwo = await fs.readFile(paths.testFilesPath, 'utf8')
+
+      //       const linesOne = iniOne.split('\n')
+      //       const linesTwo = iniTwo.split('\n')
+
+      //       const comparisons = compareArr(linesOne, linesTwo) // Assuming compareArr is defined somewhere
+
+      //       res.status(200).json({
+      //         message: 'CHANGES',
+      //         comparisons: { iniOne: linesOne, iniTwo: linesTwo },
+      //       })
+      //     } else {
+      //       res.status(401).json({ error: 'Unauthorized' })
+      //     }
+      //   } catch (err) {
+      //     console.error(err)
+      //     res.status(500).json({ error: err.message })
+      //   }
+      // }
+
+      const iniCompare = (req, res) => {
+        if (USERPROFILE) {
+          fs.readFile(paths.iniPath, 'utf8', (err, iniOne) => {
+            if (err) {
+              console.error(err)
+              return res.status(500).json({ error: err.message })
+            }
+
+            fs.readFile(paths.testFilesPath, 'utf8', (err, iniTwo) => {
+              if (err) {
+                console.error(err)
+                return res.status(500).json({ error: err.message })
+              }
+
+              const linesOne = iniOne.split('\n')
+              const linesTwo = iniTwo.split('\n')
+
+              const compareLines = compareArr(linesOne, linesTwo) // Assuming compareArr is defined somewhere
+
+              res.status(200).json({
+                message: 'Changes',
+                comparisons: {
+                  iniOne: linesOne,
+                  iniTwo: linesTwo,
+                  compareLines,
+                },
+              })
+            })
+          })
+        } else {
+          res.status(401).json({ error: 'Unauthorized' })
+        }
+      }
