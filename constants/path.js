@@ -1,4 +1,4 @@
-const {GLOBAL} = require('../config')
+const GLOBAL = require('../config/global.js')
 
 const apiRoot = GLOBAL.apiRoot
 
@@ -23,6 +23,7 @@ const PATH = {
   log: apiPath(pathParams.log),
   ini: apiPath(pathParams.ini),
 }
+
 
 
 
