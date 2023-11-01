@@ -1,6 +1,6 @@
 const moment = require('moment-timezone')
-const { USER, NODE } = require('./user')
-const { COUNTRY } = require('../constants')
+const { USER, NODE } = require('./local.js')
+const COUNTRY = require('../constants/country.js')
 const dotenv = require('dotenv')
 dotenv.config()
 
@@ -20,5 +20,6 @@ const GLOBAL = {
     custom: (city) => moment().tz(COUNTRY[city]).format(),
   },
 }
+
 
 module.exports = GLOBAL
