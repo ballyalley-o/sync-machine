@@ -47,7 +47,7 @@ let modifiedIni = []
 // @access Private - Dev: Admin [not implemented]
 const iniSimulation = async (req, res) => {
   if (USERPROFILE) {
-    fs.readFile(paths.testFilesPath, 'utf8', (err, data) => {
+     fs.readFile(paths.testFilesPath, 'utf8', async (err, data) => {
       if (err) {
         res.status(500).json({ error: err.message })
         return
@@ -60,7 +60,7 @@ const iniSimulation = async (req, res) => {
           let modifiedLine = line
 
           // change burn in param to true if not already
-          let burnInValue = iniLooper.iniSimUpdate('burnIn', modifiedLine, line)
+          let burnInValue = await iniLooper.iniSimUpdate('burnIn', modifiedLine, line)
           modifiedLine = burnInValue
 
           // change target value param to 20 if not already
@@ -72,11 +72,23 @@ const iniSimulation = async (req, res) => {
           modifiedLine = targetValue
 
           // change time param to 300 if not already
-          let timeValue = iniLooper.iniSimUpdate('time', modifiedLine, line)
+          let timeValue = await iniLooper.iniSimUpdate(
+            'time',
+            modifiedLine,
+            line
+          )
           modifiedLine = timeValue
 
+          // change time param to 300 if not already
+          let ipValue = await iniLooper.iniSimUpdate(
+            'address',
+            modifiedLine,
+            line
+          )
+          modifiedLine = ipValue
+
           //  change the values for proxes and solenoids to 0 if not already
-          let zerosValue = iniLooper.iniZeros(modifiedLine, line)
+          let zerosValue = await iniLooper.iniZeros(modifiedLine, line)
           modifiedLine = zerosValue
 
           modifiedIni.push(modifiedLine)
@@ -88,18 +100,13 @@ const iniSimulation = async (req, res) => {
             modifiedData = modifiedIni.join('\n')
           }
 
-        prevIniJoin = prevIni.join('\n')
-        modIniJoin = modifiedIni.join('\n')
-
         //compare purposes only: to avoid duplicating the data
         let prevLength = data.length
         let modLength = modifiedData.length
 
-        // const currDate = new Date()
-        // const timestamp = currDate.toUTCString()
 
         // Write the modified data back to the file
-        if (prevLength > modLength) {
+        if (prevLength >= modLength && data !== modifiedData) {
           const changes = compareArr(data, modifiedData)
 
           fs.writeFile(paths.testFilesPath, modifiedData, (writeErr) => {
@@ -117,7 +124,7 @@ const iniSimulation = async (req, res) => {
         } else {
           res.status(200).json({
             message: RESPONSE.noChanges,
-            params: [],
+            params: [{data, modifiedData}],
             timestamp: GLOBAL.time.custom('akl'),
           })
         }
@@ -129,51 +136,43 @@ const iniSimulation = async (req, res) => {
   }
 }
 
-// TODO: ======================================================
+// UNDER DEVELOPMENT ======================================================
 
 // @desc compare ini
 // @path /api/0.0.1/ini/compare
 // @access Private - Dev [not implemented]
 const iniCompare = async (req, res) => {
-  let iniOne = []
-  let iniTwo = []
+    if (USERPROFILE) {
+      // using promisified callbacks from fs --not available for nodev9.11.1
+      // const iniOne =  fs.readFile(paths.iniPath, 'utf8')
+      // const iniTwo =  fs.readFile(paths.testFilesPath, 'utf8')
+      fs.readFile(paths.iniPath, 'utf8', (err, iniOne) => {
+        if (err) {
+          logger.error(err)
+          return res.status(500).json({ error: err.message})
+        }
+// TODO: use user input path instead of this dev path
+        fs.readFile(paths.testFilesPath, 'utf8', (err, iniTwo) => {
+          if (err) {
+            logger.error(err)
+            return res.status(500).json({ error: err.message})
+          }
 
-  if (USERPROFILE) {
-    fs.readFile(paths.iniPath, 'utf8', (err, data) => {
-      if (err) {
-        res.status(500).json({ error: err.message })
-      }
-      try {
-        const lines = data.split('\n')
-        // push arr one,
-        return iniOne.push(lines)
-      } catch (err) {
-        logger.error(err)
-      }
-    })
-  }
+          const linesOne = iniOne.split('\n')
+          const linesTwo = iniTwo.split('\n')
 
-  fs.readFile(paths.testFilesPath, 'utf8', (err, data) => {
-    if (err) {
-      res.status(500).json({ error: err.message })
+// TODO: compare by param names instead of lines, add a different method: if the param has multiple include the tool names/parent name
+          const compare = compareArr(linesOne, linesTwo)
+
+          res.status(200).json({
+            message: 'Changes',
+            compare,
+          })
+        })
+      })
+    } else {
+      res.status(401).json({ error: 'Unauthorized' })
     }
-    try {
-      const lines = data.split('\n')
-      // push arr one,
-      return iniTwo.push(lines)
-
-    } catch (err) {
-      logger.error(err)
-      res.status(500).json({ error: err.message })
-    }
-  })
-
-  const comparisons = compareArr(iniOne, iniTwo)
-
-  res.status(200).json({
-    message: 'CHANGES',
-    comparisons: { iniOne: iniOne, iniTwo: iniTwo },
-  })
 }
 
 
