@@ -44,7 +44,7 @@ let modifiedIni = []
 
 // @desc prepare ini for Simulation
 // @path /api/0.0.1/ini/sim
-// @access Private - Dev [not implemented]
+// @access Private - Dev: Admin [not implemented]
 const iniSimulation = async (req, res) => {
   if (USERPROFILE) {
     fs.readFile(paths.testFilesPath, 'utf8', (err, data) => {
