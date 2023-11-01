@@ -2,10 +2,11 @@ const fs = require('fs')
 const path = require('path')
 const { logger, logLooper, analogLooper } = require('../middleware')
 const { paths, logLive } = require('../utils')
-const { GLOBAL } = require('../config')
-
+const GLOBAL = require('../config/global.js')
 
 const USERPROFILE = GLOBAL.userProfile
+
+
 let totalSum
 // @desc Reader for Production log
 // @file appState.json
