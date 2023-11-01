@@ -46,8 +46,8 @@ const iniSimUpdate = (param, modifiedLine, line) => {
         case 'ipAddress':
             const ipValue = parseFloat(parts[1].trim())
           // update the ip address to plc socket data .10
-          if (ipValue === '192.168.10.10') {
-            parts[1] = 300
+          if ((ipValue).toString() !== '192.168.10.10') {
+            parts[1] = '192.168.10.10'
             modLine = parts.join('=')
           }
         break
