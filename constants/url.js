@@ -1,9 +1,7 @@
 const PATH = require('./path')
-const {GLOBAL} = require('../config')
-
+const GLOBAL = require('../config/global.js')
 
 const API = GLOBAL.api
-
 
 const absPath = (...params) => {
   return API + params.join('/')
