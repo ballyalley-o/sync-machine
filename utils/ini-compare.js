@@ -1,5 +1,4 @@
 
-
 function compareArr(prevArr, modArr) {
   const changes = []
 
