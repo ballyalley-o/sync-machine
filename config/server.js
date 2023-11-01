@@ -1,9 +1,7 @@
+require('colors')
 const fs = require('fs')
 const dotenv = require('dotenv')
 const express = require('express')
-require('colors')
-const PATH = require('../constants/path.js')
-const appState = require('../controllers/app-state.js')
 const mainRoute = require('../routes/index.js')
 const logger = require('../middleware/logger.js')
 const GLOBAL = require('./global.js')
@@ -25,11 +23,11 @@ class App {
   start() {
     try {
       this.app.listen(PORT, () => {
-        logger.log(`SERVER PORT: ${PORT}`.yellow)
-        console.log('SERVER STATUS: connected'.yellow)
+        logger.server(PORT, true)
       })
     } catch (error) {
-      console.log(error)
+      logger.error(error.message)
+      logger.server(PORT, false)
     }
   }
 }
