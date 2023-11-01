@@ -231,3 +231,62 @@ let counter = 0
 //     counter,
 //   })
 // }
+
+
+// const { BURN_IN_PARAMS } = require('../../constants')
+
+// const iniBool = (param, modifiedLine, line) => {
+//   const isBool = line.includes(BURN_IN_PARAMS[param])
+//   let boolChanged = modifiedLine
+
+//   if (isBool) {
+//     const parts = line.split('=')
+//     if (parts.length === 2) {
+//       const boolValue = JSON.parse(parts[1].trim())
+//       // Convert burnin to true
+//       if (boolValue === false) {
+//         parts[1] = 'true'
+//         boolChanged = parts.join('=')
+//       }
+//     }
+//   }
+
+//   return boolChanged // Return the modified line
+// }
+
+// const iniLooper = { iniBool }
+// module.exports = iniLooper
+
+// old snippet for loop in iniSimulation:
+
+// const time = line.match(BURN_IN_PARAMS.time)
+  // if (time) {
+  //   const parts = line.split('=')
+  //   if (parts.length === 2) {
+  //     const timeValue = parseFloat(parts[1].trim())
+  //     // convert burnin to true
+  //     if (timeValue < 300) {
+  //       parts[1] = 300
+  //       modifiedLine = parts.join('=')
+  //     }
+  //   }
+  // }
+
+  //loop snippet for zeros in ini sim
+// for (const param of BURN_IN_PARAMS.zeros) {
+      //   const PARAM = line.includes(param)
+
+      //   if (PARAM) {
+      //     // Split the line to separate the parameter name and its value
+      //     const parts = line.split('=')
+      //     if (parts.length === 2) {
+      //       // Trim and check if it's a valid number
+      //       const value = parseFloat(parts[1].trim())
+      //       if (!isNaN(value) && value !== 0) {
+      //         // Change the value to 0
+      //         parts[1] = '0'
+      //         modifiedLine = parts.join('=')
+      //       }
+      //     }
+      //   }
+      // }
