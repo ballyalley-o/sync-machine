@@ -7,7 +7,7 @@ const { BURN_IN_PARAMS } = require('../../constants')
  * @param {obj} line
  * @returns updated modifiedLine
  */
-const iniSimUpdate = (param, modifiedLine, line) => {
+const iniSimUpdate = async (param, modifiedLine, line) => {
     let modLine = modifiedLine
   const paramValue = line.match(BURN_IN_PARAMS[param])
 
@@ -43,11 +43,13 @@ const iniSimUpdate = (param, modifiedLine, line) => {
           }
         break
 
-        case 'ipAddress':
-            const ipValue = parseFloat(parts[1].trim())
+        case 'address':
+            const ipValue = parts[1].trim()
+
           // update the ip address to plc socket data .10
-          if (ipValue === '192.168.10.10') {
-            parts[1] = 300
+          if (ipValue !== '192.168.10.10') {
+            console.log('call mee ip address')
+            parts[1] = '192.168.10.10'
             modLine = parts.join('=')
           }
         break
@@ -67,10 +69,10 @@ const iniSimUpdate = (param, modifiedLine, line) => {
  * @param {obj} line
  * @returns
  */
-const iniZeros = (modifiedLine, line) => {
+const iniZeros = async (modifiedLine, line) => {
     let paramChanged = modifiedLine
     for (const param of BURN_IN_PARAMS.zeros) {
-        const isParam = line.includes(param)
+        const isParam = await line.includes(param)
 
         if (isParam) {
             const parts = line.split('=')

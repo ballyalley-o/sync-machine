@@ -72,9 +72,9 @@ const parsedCoilLog = async (req, res) => {
         const hmiVersion = appStateFetch.HMIVersion
         const coilCoating = appStateFetch.coilSpecs.coating
         const coilInnerDiameter = appStateFetch.coilSpecs.inner_diameter
-        const coilOuterDiameter = appStateFetch.coilSpecs.outer_diameter
         const previousBatch = appStateFetch.coilSpecs.previous_batch
         const coilLengthAppState = appStateFetch.coilSpecs.length
+        let coilOuterDiameter = appStateFetch.coilSpecs.outer_diameter
 
         // log extract
         const coilBatchName = coilLooper(revLines, 'coilBatch')

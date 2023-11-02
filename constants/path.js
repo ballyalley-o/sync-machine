@@ -1,4 +1,5 @@
 const GLOBAL = require('../config/global.js')
+const COUNTRY = require('./country.js')
 
 const apiRoot = GLOBAL.apiRoot
 
@@ -13,7 +14,6 @@ const pathParams = {
 const apiPath = (module) => {
   const dirPath = apiRoot + module
   return dirPath
-
 }
 
 const PATH = {
