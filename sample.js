@@ -320,36 +320,191 @@ let counter = 0
       //   }
       // }
 
-      const iniCompare = (req, res) => {
-        if (USERPROFILE) {
-          fs.readFile(paths.iniPath, 'utf8', (err, iniOne) => {
-            if (err) {
-              console.error(err)
-              return res.status(500).json({ error: err.message })
-            }
+      function compareArrByName(prevArr, modArr) {
+        const changes = []
 
-            fs.readFile(paths.testFilesPath, 'utf8', (err, iniTwo) => {
-              if (err) {
-                console.error(err)
-                return res.status(500).json({ error: err.message })
-              }
+        if (!Array.isArray(prevArr) || !Array.isArray(modArr)) {
+          // Handle non-array inputs
+          return changes
+        }
 
-              const linesOne = iniOne.split('\n')
-              const linesTwo = iniTwo.split('\n')
+        const prevNames = prevArr.map((item) => item.name)
+        const modNames = modArr.map((item) => item.name)
 
-              const compareLines = compareArr(linesOne, linesTwo) // Assuming compareArr is defined somewhere
+        prevNames.forEach((prevName, index) => {
+          if (modNames[index] !== prevName) {
+            changes.push(`Name: '${prevName}' -> '${modNames[index]}'`)
+          }
+        })
 
-              res.status(200).json({
-                message: 'Changes',
-                comparisons: {
-                  iniOne: linesOne,
-                  iniTwo: linesTwo,
-                  compareLines,
-                },
-              })
-            })
-          })
-        } else {
-          res.status(401).json({ error: 'Unauthorized' })
+        for (let i = prevNames.length; i < modNames.length; i++) {
+          changes.push(`Added Name: '${modNames[i]}'`)
+        }
+
+        for (let i = modNames.length; i < prevNames.length; i++) {
+          changes.push(`Removed Name: '${prevNames[i]}'`)
+        }
+
+        return changes
+      }
+
+      function compareArrByProperty(prevArr, modArr, propertyName) {
+        const changes = []
+
+        if (!Array.isArray(prevArr) || !Array.isArray(modArr)) {
+          // Handle non-array inputs
+          return changes
+        }
+
+
+
+        const prevPropertyValues = prevArr.map((item) => item[propertyName])
+        const modPropertyValues = modArr.map((item) => item[propertyName])
+
+        prevPropertyValues.forEach((prevValue, index) => {
+          if (modPropertyValues[index] !== prevValue) {
+            changes.push(
+              `${propertyName}: '${prevValue}' -> '${modPropertyValues[index]}'`
+            )
+          }
+        })
+
+        for (
+          let i = prevPropertyValues.length;
+          i < modPropertyValues.length;
+          i++
+        ) {
+          changes.push(`Added ${propertyName}: '${modPropertyValues[i]}'`)
+        }
+
+        for (
+          let i = modPropertyValues.length;
+          i < prevPropertyValues.length;
+          i++
+        ) {
+          changes.push(`Removed ${propertyName}: '${prevPropertyValues[i]}'`)
+        }
+
+        return changes
+      }
+
+const fs = require('fs').promises
+
+async function comparePropertiesFromFile(prevFile, modFile) {
+  const changes = []
+
+  try {
+    const prevData = await fs.readFile(prevFile, 'utf8')
+    const modData = await fs.readFile(modFile, 'utf8')
+
+    const prevProperties = parseProperties(prevData)
+    const modProperties = parseProperties(modData)
+
+    // Compare properties
+    for (const key in prevProperties) {
+      if (key in modProperties) {
+        if (prevProperties[key] !== modProperties[key]) {
+          changes.push(
+            `[${key}] Property Changed: '${prevProperties[key]}' -> '${modProperties[key]}'`
+          )
+        }
+      } else {
+        changes.push(`[${key}] Property Removed: '${prevProperties[key]}'`)
+      }
+    }
+
+    for (const key in modProperties) {
+      if (!(key in prevProperties)) {
+        changes.push(`[${key}] Property Added: '${modProperties[key]}'`)
+      }
+    }
+  } catch (err) {
+    console.error(err)
+  }
+
+  return changes
+}
+
+
+// ---------------------------------------------------------------
+
+const fs = require('fs').promises // Use promisified fs for async/await
+
+async function comparePropertiesFromFile(prevFile, modFile) {
+  const changes = []
+
+  try {
+    const prevData = await fs.readFile(prevFile, 'utf8')
+    const modData = await fs.readFile(modFile, 'utf8')
+
+    const prevProperties = prevData.split('\n')
+    const modProperties = modData.split('\n')
+
+    prevProperties.forEach((prevProp, index) => {
+      if (modProperties[index] !== prevProp) {
+        changes.push(
+          `Property ${index + 1}: '${prevProp}' -> '${modProperties[index]}'`
+        )
+      }
+    })
+
+    for (let i = prevProperties.length; i < modProperties.length; i++) {
+      changes.push(`Added Property ${i + 1}: '${modProperties[i]}'`)
+    }
+
+    for (let i = modProperties.length; i < prevProperties.length; i++) {
+      changes.push(`Removed Property ${i + 1}: '${prevProperties[i]}'`)
+    }
+  } catch (err) {
+    console.error(err)
+  }
+
+  return changes
+}
+
+// Example usage:
+// const prevFile = 'prevProperties.txt' // Replace with your file paths
+// const modFile = 'modProperties.txt' // Replace with your file paths
+
+comparePropertiesFromFile(prevFile, modFile)
+  .then((changes) => {
+    console.log(changes)
+  })
+  .catch((err) => {
+    console.error(err)
+  })
+
+
+function parseProperties(data) {
+  const properties = {}
+  const lines = data.split('\n')
+  let currentSection = ''
+
+  for (const line of lines) {
+    if (line.startsWith('[') && line.endsWith(']')) {
+      currentSection = line.slice(1, -1)
+    } else {
+      const parts = line.split('=')
+      if (parts.length === 2) {
+        const key = parts[0].trim()
+        const value = parts[1].trim()
+        if (currentSection && key) {
+          properties[key] = value
         }
       }
+    }
+  }
+  return properties
+}
+
+// Example usage:
+// const prevFile = 'prevProperties.txt' // Replace with your file paths
+// const modFile = 'modProperties.txt' // Replace with your file paths
+
+comparePropertiesFromFile(prevFile, modFile)
+  .then((changes) => {
+    console.log(changes)
+  })
+  .catch((err) => {
+    console.error(err)
+  })
