@@ -23,8 +23,43 @@ function compareArr(prevArr, modArr) {
        return changes
     }
   }
+  return changes
+}
+
+function compareArrByProperty(prevArr, modArr) {
+  const changes = []
+
+  if (!Array.isArray(prevArr) || !Array.isArray(modArr)) {
+    // Handle non-array inputs
+    return changes
+  }
+
+  const properties = ['TargetWindow', 'Time']
+
+  for (const propertyName of properties) {
+    const prevPropertyValues = prevArr.map((item) => item[propertyName])
+    const modPropertyValues = modArr.map((item) => item[propertyName])
+
+    prevPropertyValues.forEach((prevValue, index) => {
+      if (modPropertyValues[index] !== prevValue) {
+        changes.push(
+          `${propertyName}: '${prevValue}' -> '${modPropertyValues[index]}'`
+        )
+      }
+    })
+
+    for (let i = prevPropertyValues.length; i < modPropertyValues.length; i++) {
+      changes.push(`Added ${propertyName}: '${modPropertyValues[i]}'`)
+    }
+
+    for (let i = modPropertyValues.length; i < prevPropertyValues.length; i++) {
+      changes.push(`Removed ${propertyName}: '${prevPropertyValues[i]}'`)
+    }
+  }
 
   return changes
 }
 
-module.exports = compareArr
+
+
+module.exports = { compareArr, compareArrByProperty }
