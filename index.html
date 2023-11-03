@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Howick Sync</title>
+</head>
+<body>
+    <div id="log-container">
+        <!-- Log updates will be displayed here -->
+    </div>
+    <script>
+        const logContainer = document.getElementById('log-container');
+        // Create a WebSocket connection to your server
+        const socket = new WebSocket('ws://localhost:3003');
+
+        socket.onmessage = (event) => {
+            // Handle updates received from the WebSocket server
+            const data = JSON.parse(event.data);
+            // Assuming you want to display the log updates in a div
+            logContainer.innerHTML = JSON.stringify(data, null, 2);
+        };
+
+        socket.onerror = (error) => {
+            console.error('WebSocket error:', error);
+        };
+
+        socket.onclose = () => {
+            console.log('WebSocket connection closed');
+        };
+    </script>
+</body>
+</html>
