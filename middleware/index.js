@@ -5,4 +5,6 @@ module.exports = {
   iniLooper: require('./loopers/ini'),
   asyncHandler: require('./async-handler'),
   analogLooper: require('./analog-looper'),
+  sysLooper: require('./loopers/system'),
+  sysLogWs: require('./system-log-ws')
 }

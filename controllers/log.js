@@ -1,6 +1,7 @@
 const fs = require('fs')
 const fetch = require('node-fetch')
-const { logger, coilLooper } = require('../middleware')
+const WebSocket = require('ws')
+const { logger, coilLooper, sysLooper } = require('../middleware')
 const { paths, logLive, nuller } = require('../utils')
 const { GLOBAL } = require('../config')
 const { URL } = require('../constants')
@@ -106,36 +107,120 @@ const parsedCoilLog = async (req, res) => {
   }
 }
 
-// // @desc Totals for Coil log
-// // @path /api/v1/log/coil
-// // @access Public [not implemented]
-// const coilWatcher = async (req, res ) => {
-//     const filePath = await paths.livePath('coil', 'txt').then((result) => {
-//     promisePath = result
-//     logger.log(promisePath)
-//     return promisePath
-//     })
+// @desc Totals for Coil log
+// @path /api/v1/log/parsed-coil-log
+// @access Public [not implemented]
+const sysLog = async (req, res) => {
+  const filePath = await paths.livePath('sys', 'txt').then((result) => {
+    promisePath = result
+    logger.log(promisePath)
+    return promisePath
+  })
 
-//   if (USERPROFILE) {
-//     fs.readFile(filePath, 'utf8', (err, data) => {
-//       if (err) {
-//         res.status(500).json({ error: err })
-//         return
-//       }
-//       try {
-//         const lines = data.split('\n')
+  // const coilState = await fetch(URL.app_state.extract, {
+  //   method: 'GET',
+  // })
+  //   const appStateFetch = await coilState.json()
 
-//         for (const line of lines) {
-//           logger.log(line)
-//         }
+  if (USERPROFILE) {
+    fs.readFile(filePath, 'utf8', (err, data) => {
+      if (err) {
+        res.status(500).json({ error: err.message })
+        return
+      }
+      try {
+        const lines = data.split('\n').reverse()
 
-//         res.status(200).json(lines)
-//       } catch (err) {
-//         res.status(500).json({ error: err })
-//       }
-//     })
-//   }
-// }
+        // // log extract
+        const dateLog = sysLooper(lines, 'date')
+        const sysLog = sysLooper(lines, 'log')
 
-const logController = { coilLog, parsedCoilLog }
+        res.status(200).json({ dateLog, sysLog, lines })
+      } catch (err) {
+        res.status(500).json({ error: err.message })
+      }
+    })
+  }
+}
+
+  // const sysLogWs = async (req, res) => {
+  //   if (USERPROFILE) {
+  //     const filePath = await paths.livePath('sys', 'txt')
+  //     logger.log(filePath)
+
+  //     // sets the appropriate headers for SSE
+  //     res.setHeader('Content-Type', 'text/event-stream')
+  //     res.setHeader('Cache-Control', 'no-cache')
+  //     res.setHeader('Connection', 'keep-alive')
+
+  //     const stream = fs.createReadStream(filePath, { encoding: 'utf8' })
+  //     stream.on('data', (data) => {
+  //       // split the log data and send it as a message to the client
+  //       const lines = data.split('\n').reverse()
+  //       const dateLog = sysLooper(lines, 'date')
+  //       const sysLog = sysLooper(lines, 'log')
+  //       const response = {
+  //         dateLog,
+  //         sysLog,
+  //         // revLines: lines,
+  //       }
+  //       res.write(`data: ${JSON.stringify(response)}\n\n`)
+  //     })
+  //     // Handle errors and end of the stream
+  //     stream.on('error', (error) => {
+  //       console.error(error)
+  //       res.status(500).json({ error: error.message })
+  //       res.end()
+  //     })
+
+  //     stream.on('end', () => {
+  //       res.end()
+  //     })
+  //   }
+  // }
+
+  // // @desc websockets live updates with the log
+  // // @path /api/v1/log/sys
+  // // @access Public [not implemented]
+   const sysLogWs = (server) => {
+    const wws = new WebSocket.Server({ server })
+
+    wws.on('connection', (ws) => {
+      const filePath = paths.livePath('sys', 'txt').then((result) => {
+        promisePath = result
+        logger.log(promisePath)
+        return promisePath
+      })
+
+      const stream = fs.createReadStream(filePath, { encoding: 'utf8' })
+
+      // read log and sends updates to websocket clients
+      stream.on('data', (data) => {
+        const lines = data.split('\n').reverse()
+        const dateLog = sysLooper(lines, 'date')
+        const sysLog = sysLooper(lines, 'log')
+
+        console.log(data, "data")
+        const response = {
+          dateLog,
+          sysLog,
+        }
+        ws.on('message', (data) => {
+          console.log(data, 'data!')
+        })
+      })
+
+      stream.on('error', (error) => {
+        logger.error(error)
+      })
+
+      ws.on('close', () => {
+        // clean up after disconnecting websockets
+        stream.destroy()
+      })
+    })
+  }
+
+
+const logController = { coilLog, parsedCoilLog, sysLog }
 module.exports = logController

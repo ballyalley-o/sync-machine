@@ -18,7 +18,8 @@ const logType = {
     erp: 'ERP_log_',
     coil: 'COIL_log_',
     prod: 'PRODUCTION_log_',
-    operations: 'OPERATIONS_log_'
+    operations: 'OPERATIONS_log_',
+    sys: 'SYSTEM_log_'
 }
 
 const extType = {
@@ -54,7 +55,7 @@ const latestLog = (type, ext, callback) => {
       }
 
       const latestLog = logFiles.reduce((latest, current) => {
-        if (type === 'operations' || type === 'coil') {
+        if (type === 'operations' || type === 'coil' || type === 'sys') {
           const currentDate = new Date(current.match(/\d{4}-\d{2}/)[0])
           const latestDate = new Date(latest.match(/\d{4}-\d{2}/)[0])
           return currentDate > latestDate ? current : latest
