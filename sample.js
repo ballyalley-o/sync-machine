@@ -508,3 +508,164 @@ comparePropertiesFromFile(prevFile, modFile)
   .catch((err) => {
     console.error(err)
   })
+
+
+  // --auto refresh
+  const sysLog = async (req, res) => {
+    if (USERPROFILE) {
+      const filePath = await paths.livePath('sys', 'txt')
+      logger.log(filePath)
+
+      // Set the appropriate headers for SSE
+      res.setHeader('Content-Type', 'text/event-stream')
+      res.setHeader('Cache-Control', 'no-cache')
+      res.setHeader('Connection', 'keep-alive')
+
+      const stream = fs.createReadStream(filePath, { encoding: 'utf8' })
+      stream.on('data', (data) => {
+        // Split the log data and send it as a message to the client
+        const lines = data.split('\n').reverse()
+        const dateLog = sysLooper(lines, 'date')
+        const sysLog = sysLooper(lines, 'log')
+        const response = {
+          dateLog,
+          sysLog,
+          revLines: lines,
+        }
+        res.write(`data: ${JSON.stringify(response)}\n\n`)
+      })
+
+      // Handle errors and end of the stream
+      stream.on('error', (error) => {
+        console.error(error)
+        res.status(500).json({ error: error.message })
+        res.end()
+      })
+
+      stream.on('end', () => {
+        res.end()
+      })
+    }
+  }
+
+    // client side :
+
+    const eventSource = new EventSource('/your-sse-endpoint')
+
+    eventSource.onmessage = (event) => {
+      const data = JSON.parse(event.data)
+      // Process and display the data as needed
+      console.log(data)
+    }
+
+    eventSource.onerror = (error) => {
+      console.error('SSE error:', error)
+    }
+
+// adding websocket
+    require('colors')
+    const fs = require('fs')
+    const dotenv = require('dotenv')
+    const express = require('express')
+    const http = require('http') // Import the HTTP module
+    const WebSocket = require('ws') // Import the ws library for WebSocket support
+    const mainRoute = require('../routes/index.js')
+    const logger = require('../middleware/logger.js')
+    const morgan = require('morgan')
+    const GLOBAL = require('./global.js')
+    dotenv.config()
+
+    const PORT = GLOBAL.port
+
+    class App {
+      constructor() {
+        this.app = express()
+        this.app.use(express.json())
+        this.app.use(morgan('short'))
+        this.registerRoutes()
+
+        // Create an HTTP server and attach it to your Express app
+        this.server = http.createServer(this.app)
+
+        // Create a WebSocket server that listens on the same server
+        this.wss = new WebSocket.Server({ server: this.server })
+
+        // Set up WebSocket connections
+        this.wss.on('connection', (ws) => {
+          // Handle new WebSocket connections here
+
+          // Read the log file periodically and send updates to the connected clients
+          const interval = setInterval(() => {
+            // Replace this logic with your log file reading and sending updates
+            const data = 'New log data' // Replace with actual log data
+
+            // Send the data to the client
+            ws.send(data)
+          }, 1000)
+
+          ws.on('close', () => {
+            clearInterval(interval)
+          })
+        })
+      }
+
+      registerRoutes() {
+        mainRoute(this.app)
+      }
+
+      start() {
+        try {
+          this.server.listen(PORT, () => {
+            logger.server(PORT, true)
+          })
+        } catch (error) {
+          logger.error(error.message)
+          logger.server(PORT, false)
+        }
+      }
+    }
+
+    module.exports = App
+
+    //
+
+    const WebSocket = require('ws')
+    const fs = require('fs')
+    const paths = require('./paths') // Import your paths module
+    const logger = require('../middleware/logger.js')
+    const sysLooper = require('./sysLooper') // Import your sysLooper function
+
+    const createWebSocketServer = (server) => {
+      const wss = new WebSocket.Server({ server })
+
+      wss.on('connection', (ws) => {
+        const filePath = paths.livePath('sys', 'txt')
+
+        // read the log file and send updates to connected WebSocket clients
+        const stream = fs.createReadStream(filePath, { encoding: 'utf8' })
+
+        stream.on('data', (data) => {
+          const lines = data.split('\n').reverse()
+          const dateLog = sysLooper(lines, 'date')
+          const sysLog = sysLooper(lines, 'log')
+          const response = {
+            dateLog,
+            sysLog,
+          }
+          ws.send(JSON.stringify(response))
+        })
+
+        stream.on('error', (error) => {
+          logger.error(error)
+        })
+
+        ws.on('close', () => {
+
+          // Cleanup when the WebSocket client disconnects
+          stream.destroy()
+        })
+      })
+    }
+
+    module.exports = createWebSocketServer
+
