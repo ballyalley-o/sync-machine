@@ -3,7 +3,7 @@ const fs = require('fs')
 // const chokidar = require('chokidar')
 // const io = require('../app')
 const { logger, iniLooper } = require('../middleware')
-const { paths, compareArr } = require('../utils')
+const { paths, compareActions } = require('../utils')
 const { GLOBAL } = require('../config')
 const { BURN_IN_PARAMS, RESPONSE } = require('../constants')
 
@@ -47,7 +47,7 @@ let modifiedIni = []
 // @access Private - Dev: Admin [not implemented]
 const iniSimulation = async (req, res) => {
   if (USERPROFILE) {
-     fs.readFile(paths.testFilesPath, 'utf8', async (err, data) => {
+     fs.readFile(paths.iniPath, 'utf8', async (err, data) => {
       if (err) {
         res.status(500).json({ error: err.message })
         return
@@ -107,9 +107,9 @@ const iniSimulation = async (req, res) => {
 
         // Write the modified data back to the file
         if (prevLength >= modLength && data !== modifiedData) {
-          const changes = compareArr(data, modifiedData)
+          const changes = compareActions.compareArr(data, modifiedData)
 
-          fs.writeFile(paths.testFilesPath, modifiedData, (writeErr) => {
+          fs.writeFile(paths.iniPath, modifiedData, (writeErr) => {
             if (writeErr) {
               res.status(500).json({ error: writeErr.message })
             } else {
@@ -162,7 +162,7 @@ const iniCompare = async (req, res) => {
           const linesTwo = iniTwo.split('\n')
 
 // TODO: compare by param names instead of lines, add a different method: if the param has multiple include the tool names/parent name
-          const compare = compareArr(linesOne, linesTwo)
+          const compare = compareActions.compareArr(linesOne, linesTwo)
 
           res.status(200).json({
             message: 'Changes',

@@ -61,5 +61,6 @@ function compareArrByProperty(prevArr, modArr) {
 }
 
 
+const compareActions = { compareArr, compareArrByProperty}
 
-module.exports = { compareArr, compareArrByProperty }
+module.exports = compareActions
