@@ -12,6 +12,11 @@
         // Create a WebSocket connection to your server
         const socket = new WebSocket('ws://localhost:3003');
 
+         // WebSocket event handlers
+        socket.onopen = (event) => {
+            logContainer.innerHTML = 'WebSocket connection is open.';
+        };
+
         socket.onmessage = (event) => {
             // Handle updates received from the WebSocket server
             const data = JSON.parse(event.data);
