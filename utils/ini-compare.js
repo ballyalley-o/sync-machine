@@ -35,6 +35,8 @@ function compareArrByProperty(prevArr, modArr) {
   const paramArray = []
   const profileArray = []
   const properties = {}
+  const keyValueArray = []
+  let keyValue
 
   if (!Array.isArray(prevArr) || !Array.isArray(modArr)) {
     let prevLines = prevArr.split('\n')
@@ -62,14 +64,16 @@ function compareArrByProperty(prevArr, modArr) {
       const [key, value] = line.split('=')
 
       // if Profile_1 just push the key and value
-      console.log(key, value)
       if (key && value) {
+        keyValue = [key, value]
+        keyValueArray.push(keyValue)
         properties[key.trim()] = value.trim()
       //  console.log(properties)
       }
     }
   }
 
+  console.log(keyValueArray)
   console.log(properties, 'PROPS')
 
   const prevPropertyValues = prevArr.map((item) => {
