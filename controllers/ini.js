@@ -106,25 +106,32 @@ const iniSimulation = async (req, res) => {
 
 
         // Write the modified data back to the file
-        if (prevLength >= modLength && data !== modifiedData) {
+        if (data !== modifiedData) {
           const changes = compareActions.compareArr(data, modifiedData)
-
-          fs.writeFile(paths.iniPath, modifiedData, (writeErr) => {
-            if (writeErr) {
-              res.status(500).json({ error: writeErr.message })
-            } else {
-              modifiedIni = []
-              res.status(201).json({
-                message: RESPONSE.iniSimulation,
-                params: changes,
-                timestamp: GLOBAL.time.custom('akl'),
-              })
-            }
-          })
+          if (changes.length >= 1) {
+             fs.writeFile(paths.iniPath, modifiedData, (writeErr) => {
+               if (writeErr) {
+                 res.status(500).json({ error: writeErr.message })
+               } else {
+                 modifiedIni = []
+                 res.status(201).json({
+                   message: RESPONSE.iniSimulation,
+                   params: changes,
+                   timestamp: GLOBAL.time.custom('akl'),
+                 })
+               }
+             })
+          } else {
+             res.status(200).json({
+               message: RESPONSE.noChanges,
+               params: [],
+               timestamp: GLOBAL.time.custom('akl'),
+             })
+          }
         } else {
           res.status(200).json({
             message: RESPONSE.noChanges,
-            params: [{data, modifiedData}],
+            params: [],
             timestamp: GLOBAL.time.custom('akl'),
           })
         }
