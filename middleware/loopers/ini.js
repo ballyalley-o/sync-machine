@@ -1,3 +1,4 @@
+const { GLOBAL } = require('../../config')
 const { BURN_IN_PARAMS } = require('../../constants')
 
 /**
@@ -45,11 +46,9 @@ const iniSimUpdate = async (param, modifiedLine, line) => {
 
         case 'address':
             const ipValue = parts[1].trim()
-
           // update the ip address to plc socket data .10
-          if (ipValue !== '192.168.10.10') {
-            console.log('call mee ip address')
-            parts[1] = '192.168.10.10'
+          if (ipValue !== GLOBAL.ip_socket) {
+            parts[1] = GLOBAL.ip_socket
             modLine = parts.join('=')
           }
         break
