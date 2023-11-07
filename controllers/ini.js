@@ -169,7 +169,10 @@ const iniCompare = async (req, res) => {
           const linesTwo = iniTwo.split('\n')
 
 // TODO: compare by param names instead of lines, add a different method: if the param has multiple include the tool names/parent name
-          const compare = compareActions.compareArr(linesOne, linesTwo)
+          const compare = compareActions.compareArrByProperty(
+            linesOne,
+            linesTwo
+          )
 
           res.status(200).json({
             message: 'Changes',

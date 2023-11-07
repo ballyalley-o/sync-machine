@@ -669,3 +669,130 @@ comparePropertiesFromFile(prevFile, modFile)
 
     module.exports = createWebSocketServer
 
+const fs = require('fs')
+
+function getIniParameterValue(filePath, section, parameter) {
+  const iniData = fs.readFileSync(filePath, 'utf-8')
+  const lines = iniData.split('\n')
+  let currentSection = null
+
+  for (const line of lines) {
+    if (line.trim().startsWith('[') && line.trim().endsWith(']')) {
+      currentSection = line.trim().slice(1, -1)
+    } else if (currentSection === section) {
+      const [key, value] = line.split('=')
+      if (key.trim() === parameter) {
+        return value.trim()
+      }
+    }
+  }
+
+  return null // Parameter not found
+}
+
+// Usage
+const filePath = 'your_ini_file.ini'
+const section = 'MachineParameters'
+const parameter = 'Product'
+
+const value = getIniParameterValue(filePath, section, parameter)
+
+if (value !== null) {
+  console.log(`${parameter} = ${value}`)
+} else {
+  console.log(
+    `Section '${section}' or parameter '${parameter}' not found in the INI file.`
+  )
+}
+
+
+const fs = require('fs')
+
+function getSectionProperties(filePath, section) {
+  const iniData = fs.readFileSync(filePath, 'utf-8')
+  const lines = iniData.split('\n')
+  let currentSection = null
+  const properties = {}
+
+  for (const line of lines) {
+    if (line.trim().startsWith('[') && line.trim().endsWith(']')) {
+      currentSection = line.trim().slice(1, -1)
+    } else if (currentSection === section) {
+      const [key, value] = line.split('=')
+      if (key && value) {
+        properties[key.trim()] = value.trim()
+      }
+    }
+  }
+
+  return properties
+}
+
+// // Usage
+// const filePath = 'your_ini_file.ini'
+// const section = 'LabelPrinter'
+
+// const properties = getSectionProperties(filePath, section)
+
+if (Object.keys(properties).length > 0) {
+  console.log(`Properties under [${section}]:`)
+  for (const key in properties) {
+    console.log(`${key} = ${properties[key]}`)
+  }
+} else {
+  console.log(`Section '[${section}]' not found in the INI file.`)
+}
+
+// do not removed the other Name[]
+
+const fs = require('fs')
+
+function getSectionProperties(filePath, section) {
+  const iniData = fs.readFileSync(filePath, 'utf-8')
+  const lines = iniData.split('\n')
+  let currentSection = null
+  const properties = {}
+
+  for (const line of lines) {
+    if (line.trim().startsWith('[') && line.trim().endsWith(']')) {
+      currentSection = line.trim().slice(1, -1)
+    } else if (currentSection === section) {
+      const propertyMatch = line.match(/([^=]+)=\s*(.*)/)
+      if (propertyMatch) {
+        const key = propertyMatch[1].trim()
+        const value = propertyMatch[2].trim()
+        properties[key] = value
+      }
+    }
+  }
+
+  return properties
+}
+
+// Usage
+const filePath = 'your_ini_file.ini'
+const section = 'Profile_1'
+
+const properties = getSectionProperties(filePath, section)
+
+if (Object.keys(properties).length > 0) {
+  console.log(`Properties under [${section}]:`)
+  for (const key in properties) {
+    console.log(`${key} = ${properties[key]}`)
+  }
+} else {
+  console.log(`Section '[${section}]' not found in the INI file.`)
+}
+
+
+// The regular expression `/([^=]+)=\s*(.*)/` is used to match and extract key-value pairs from lines in an INI file. Here's a breakdown of how the regular expression works:
+
+// - `([^=]+)`: This part of the regular expression captures one or more characters that are not equal to `=`. It's enclosed in parentheses, which indicates a capturing group. This part is used to match the key in the key-value pair.
+
+// - `=`: This matches the equal sign, which separates the key and the value in an INI file.
+
+// - `\s*`: This matches zero or more whitespace characters (such as spaces or tabs) that may occur after the equal sign. It allows for flexibility in the formatting of the INI file.
+
+// - `(.*)`: This part captures any characters (including whitespace) that follow the equal sign. It's enclosed in parentheses, indicating another capturing group. This part matches the value in the key-value pair.
+
+// In summary, this regular expression is designed to capture key-value pairs by matching everything up to the equal sign for the key and everything after the equal sign for the value while allowing for optional whitespace. It ensures that key-value pairs are extracted correctly from lines in the INI file, even when there's whitespa＞ce around the equal sign.
