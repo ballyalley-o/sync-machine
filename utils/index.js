@@ -4,5 +4,5 @@ module.exports = {
   logLive: require('./latest'),
   appStateLive: require('./appState-latest'),
   nuller: require('./nuller'),
-  compareArr: require('./ini-compare'),
+  compareActions: require('./ini-compare'),
 }
