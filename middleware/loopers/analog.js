@@ -1,4 +1,4 @@
-const  logger  = require("./logger")
+const  logger  = require("../logger")
 
 const analogLooper = (appState) => {
    if (!appState) return logger.error('No Appstate provided')
