@@ -12,6 +12,7 @@ const GLOBAL = {
   api: process.env.API_LOCAL,
   apiRoot: process.env.API_ROOT,
   port: process.env.API_PORT,
+  ip_socket: process.env.IP_SOCKET,
   time: {
     UTC: dateNow.toUTCString(),
     ISO: dateNow.toISOString(),
