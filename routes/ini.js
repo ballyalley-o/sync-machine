@@ -1,4 +1,4 @@
-const { iniController } = require('../controllers')
+const { iniController, extractController } = require('../controllers')
 const express = require('express')
 
 const router = express.Router()
@@ -9,6 +9,7 @@ const router = express.Router()
 router.get('/', iniController.iniExtract)
 router.get('/sim', iniController.iniSimulation)
 router.get('/compare', iniController.iniCompare)
+router.get('/extract', extractController.extractSection)
 
 
 const iniRouter = router
