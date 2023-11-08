@@ -11,14 +11,20 @@ const GLOBAL = require('./global.js')
 dotenv.config()
 
 const PORT = GLOBAL.port
-const PORT2 = 3004
 /**
+ * @param app - express app
+ * @param express.json() - express body parser
+ * @param express.urlencoded() - express url encoder
+ * @param morgan() - morgan logger {short}
+ * @param registerRoutes() - mount the routes/routing traffic
+ * @param serfer - http server for web sockets
  *
  */
 class App {
   constructor() {
     this.app = express()
     this.app.use(express.json())
+    this.app.use(express.urlencoded({extended: true}))
     this.app.use(morgan('short'))
     this.registerRoutes()
     this.server = http.createServer(this.app)
