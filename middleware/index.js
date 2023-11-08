@@ -1,4 +1,5 @@
 module.exports = {
+  extractBySection: require('./extract'),
   logger: require('./logger'),
   logLooper: require('./loopers/log'),
   coilLooper: require('./loopers/coil'),
@@ -6,5 +7,5 @@ module.exports = {
   asyncHandler: require('./async-handler'),
   analogLooper: require('./loopers/analog'),
   sysLooper: require('./loopers/system'),
-  sysLogWs: require('./system-log-ws')
+  sysLogWs: require('./system-log-ws'),
 }
