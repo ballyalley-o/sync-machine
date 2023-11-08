@@ -33,6 +33,7 @@ function compareArrByProperty(prevArr, modArr) {
   const prevPropsArray = []
   const modPropsArray = []
   const paramArray = []
+  const iniArray = []
   const profileArray = []
   const properties = {}
   const keyValueArray = []
@@ -54,6 +55,7 @@ function compareArrByProperty(prevArr, modArr) {
     if (line.trim().startsWith('[') && line.trim().endsWith(']')) {
       currentSection = line.trim().slice(1, -1)
       paramArray.push(currentSection)
+
       // get all the profiles
       if (line.includes('Profile_')) {
         profileArray.push(line)
@@ -70,11 +72,22 @@ function compareArrByProperty(prevArr, modArr) {
         properties[key.trim()] = value.trim()
       //  console.log(properties)
       }
+    } else if (currentSection === paramArray[0]) {
+      const [key, value] = line.split('=')
+
+      console.log('i am called')
+      prevArr.forEach(section => {
+        if (key && value) {
+          properties[key.trim()] = value.trim()
+          iniArray.push(properties)
+        }
+      });
+
+
     }
   }
 
-  console.log(keyValueArray)
-  console.log(properties, 'PROPS')
+  console.log(iniArray, 'INI ARRAY')
 
   const prevPropertyValues = prevArr.map((item) => {
     const [key, value] = item.split('=')
