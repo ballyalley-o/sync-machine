@@ -6,7 +6,7 @@ const { logger, sysLooper } = require('../middleware')
 const sysLogWs = (server, port) => {
   const wws = new WebSocket.Server({ server })
 
-  wws.on('connection', (ws) => {
+  wws.on('connection', async (ws) => {
     const filePath = paths.livePath('sys', 'txt').then((result) => {
       promisePath = result
       logger.log(promisePath)
@@ -16,7 +16,7 @@ const sysLogWs = (server, port) => {
     const stream = fs.createReadStream(filePath, { encoding: 'utf8' })
 
     // read log and sends updates to websocket clients
-    stream.on('data', (data) => {
+    stream.on('message', (data) => {
       const lines = data.split('\n').reverse()
       const dateLog = sysLooper(lines, 'date')
       const sysLog = sysLooper(lines, 'log')
