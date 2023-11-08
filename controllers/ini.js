@@ -1,7 +1,4 @@
 const fs = require('fs')
-// const path = require('path')
-// const chokidar = require('chokidar')
-// const io = require('../app')
 const { logger, iniLooper } = require('../middleware')
 const { paths, compareActions } = require('../utils')
 const { GLOBAL } = require('../config')
