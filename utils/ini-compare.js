@@ -36,6 +36,8 @@ function compareArrByProperty(prevArr, modArr) {
   const iniArray = []
   const profileArray = []
   const properties = {}
+
+  const sectionData = {}
   const keyValueArray = []
   let keyValue
 
@@ -60,9 +62,7 @@ function compareArrByProperty(prevArr, modArr) {
       if (line.includes('Profile_')) {
         profileArray.push(line)
       }
-      // this takes out all the properties of each section
-    } else if (currentSection === 'Profile_1') {
-      // const propertyMatch = line.match(/([^=]+)/)
+
       const [key, value] = line.split('=')
 
       // if Profile_1 just push the key and value
@@ -70,7 +70,42 @@ function compareArrByProperty(prevArr, modArr) {
         keyValue = [key, value]
         keyValueArray.push(keyValue)
         properties[key.trim()] = value.trim()
-      //  console.log(properties)
+        param
+      }
+      // this takes out all the properties of each section
+    } else if (currentSection.includes('Profile_')) {
+      // const propertyMatch = line.match(/([^=]+)/)
+      const [key, value] = line.split('=')
+
+      // if Profile_1 just push the key and value
+      if (key && value) {
+        const keyTrimmed = key.trim()
+        const valueTrimmed = value.trim()
+
+        if (currentSection.startsWith(currentSection)) {
+          if (!properties[currentSection]) {
+              properties[currentSection] = []
+          }
+          const existingKeyValue = properties[currentSection].find(item => Object.keys(item)[0] === keyTrimmed)
+          // properties[currentSection].push([{valueTrimmed}])
+          if (existingKeyValue) {
+            existingKeyValue[keyTrimmed] = valueTrimmed
+          } else {
+            // if key-value pair length is not more than 1 under a section, dont push it, just make it a value of the currentSection
+            properties[currentSection].push({[keyTrimmed]: valueTrimmed})
+          }
+        } else {
+          const existingKeyValue = properties[currentSection].find(item => Object.keys(item)[0] === keyTrimmed)
+          // properties[currentSection].push([{valueTrimmed}])
+          if (existingKeyValue) {
+            existingKeyValue[keyTrimmed] = valueTrimmed
+          } else {
+            properties[currentSection].push({[currentSection]:{[keyTrimmed]: valueTrimmed}})
+          }
+          keyValueArray.push({[currentSection]:{[keyTrimmed] : valueTrimmed}})
+        }
+        // keyValue = {[currentSection]:{[key.trim()]: value.trim()}}
+        // keyValueArray.push(keyValue)
       }
     } else if (currentSection === paramArray[0]) {
       const [key, value] = line.split('=')
@@ -82,12 +117,13 @@ function compareArrByProperty(prevArr, modArr) {
           iniArray.push(properties)
         }
       });
-
-
     }
   }
 
-  console.log(iniArray, 'INI ARRAY')
+  console.log(keyValueArray, 'keyValueArray')
+  console.log(profileArray, 'profileArray')
+  console.log(paramArray, 'paramArray')
+  console.log(properties, 'properties')
 
   const prevPropertyValues = prevArr.map((item) => {
     const [key, value] = item.split('=')
@@ -118,6 +154,7 @@ function compareArrByProperty(prevArr, modArr) {
   // for (let i = modPropsArray.length; i < prevPropsArray.length; i++) {
   //   changes.push(`Removed ${propertyName}: '${prevPropsArray[i]}'`)
   // }
+
 
   return changes
 }
