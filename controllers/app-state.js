@@ -210,6 +210,8 @@ const extract = async (req, res ) => {
         // coil length live form
         const coilLengthEq = `${coilLength} = π(${coilOuterDiameter}² - ${coilInnerDiameter}²) / 4(${coilThickness}) * 1000`
 
+        const HOSTNAME = GLOBAL.host
+
         totalSum = {
           sequenceNumber: jsonData.componentSequenceNumberCounter,
           LogFileName: promisePath,
@@ -237,8 +239,8 @@ const extract = async (req, res ) => {
           previous_batch: previousCoilBatchName,
         }
         res
-        .status(200)
-        .json({ HMIVersion, totalSum, coilSpecs, coilLengthEq })
+          .status(200)
+          .json({ Machine: HOSTNAME, HMIVersion, totalSum, coilSpecs, coilLengthEq })
       } catch (err) {
 
         res
@@ -379,7 +381,7 @@ const coilWatcher = async (req, res) => {
 
           res.status(200).json(lines)
        } catch (err) {
-         logger.error('Error parsing JSON:', err)
+         logger.error('Error parsing JSON:', err, err)
 
          res
          .status(500)

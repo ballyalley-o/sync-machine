@@ -7,7 +7,10 @@ const logger = {
     console.log(message[color], optional || null),
   info: (message) =>
     console.log(message.bgBlue),
-  error: (message, optional) => console.error(message.bgRed, optional || null),
+  error: (message, error, optional) => {
+    const stack = error.stack.split('\n')[2].trim()
+
+    console.error(message.bgRed, optional, stack || null)},
   log: (message) => console.log(message.yellow),
   warn: (message, optional) => console.log(message.bgYellow, optional || null),
   server: (port, isConnected) => {

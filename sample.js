@@ -619,7 +619,7 @@ comparePropertiesFromFile(prevFile, modFile)
             logger.server(PORT, true)
           })
         } catch (error) {
-          logger.error(error.message)
+          logger.error(error.message, error)
           logger.server(PORT, false)
         }
       }
@@ -656,7 +656,7 @@ comparePropertiesFromFile(prevFile, modFile)
         })
 
         stream.on('error', (error) => {
-          logger.error(error)
+          logger.error(error, error)
         })
 
         ws.on('close', () => {
@@ -784,15 +784,92 @@ if (Object.keys(properties).length > 0) {
   console.log(`Section '[${section}]' not found in the INI file.`)
 }
 
+// It seems like you have a code snippet for a method `getOuterDiameter`, but it's not clear how this method is being used and where you want to enter the value for the outer diameter before it gets computed. It's also unclear what the overall goal of the code is. However, I can provide some insights based on the code snippet you've provided.
 
-// The regular expression `/([^=]+)=\s*(.*)/` is used to match and extract key-value pairs from lines in an INI file. Here's a breakdown of how the regular expression works:
+// The code appears to be checking the value of `this.state.outerDiameter` and trying to compute the outer diameter of a coil based on some conditions. Let's break down what the code is doing:
 
-// - `([^=]+)`: This part of the regular expression captures one or more characters that are not equal to `=`. It's enclosed in parentheses, which indicates a capturing group. This part is used to match the key in the key-value pair.
+// 1. If `this.state.outerDiameter` is not `null` and is a valid integer, it returns the current value of `this.state.outerDiameter` as a string.
 
-// - `=`: This matches the equal sign, which separates the key and the value in an INI file.
+// 2. If `this.state.outerDiameter` is either `undefined` or not `null`, it calculates the coil's outer diameter by calling the `computeCoilOuterDiameter` method and returns the result as a string.
 
-// - `\s*`: This matches zero or more whitespace characters (such as spaces or tabs) that may occur after the equal sign. It allows for flexibility in the formatting of the INI file.
+// 3. If none of the conditions are met, it returns an empty string.
 
-// - `(.*)`: This part captures any characters (including whitespace) that follow the equal sign. It's enclosed in parentheses, indicating another capturing group. This part matches the value in the key-value pair.
+// If you want to enter a new value for the outer diameter before it gets computed, you'll need to interact with the code that uses this method. You should set `this.state.outerDiameter` to the desired value before calling `getOuterDiameter`.
 
-// In summary, this regular expression is designed to capture key-value pairs by matching everything up to the equal sign for the key and everything after the equal sign for the value while allowing for optional whitespace. It ensures that key-value pairs are extracted correctly from lines in the INI file, even when there's whitespa＞ce around the equal sign.
+// Here's an example of how you might use this code:
+
+```javascript
+// Assuming this is part of a component class
+// Set the outer diameter to a new value
+this.setState({ outerDiameter: 10 });
+
+// Call getOuterDiameter to compute or retrieve the value
+const currentOuterDiameter = this.getOuterDiameter();
+console.log(currentOuterDiameter); // This will log "10" in this example
+```
+
+// In the example above, we've set the `this.state.outerDiameter` to a value of `10` before calling `getOuterDiameter`, so it will return the newly set value. Depending on how your code is structured and how you interact with it, you may need to adapt the code to fit your specific requirements.
+
+/* Add this to your CSS stylesheet */
+// .table-grid__cell {
+//   position: relative;
+// }
+
+// .table-grid__cell:hover::after {
+//   content: "Status: " attr(data-status); /* Display status information */
+//   position: absolute;
+//   top: 100%;
+//   left: 0;
+//   background-color: #f0f0f0;
+//   border: 1px solid #ccc;
+//   padding: 5px;
+//   border-radius: 5px;
+//   z-index: 1;
+//   white-space: nowrap;
+// }
+
+
+//
+// Initialize an object to store sections and their key-value pairs
+let sectionData = {};
+
+// Your current section
+let currentSection = 'Profile_1';
+
+// Your array to store key-value pairs
+let keyValueArray = [];
+
+const [key, value] = line.split('=');
+
+if (key && value) {
+  const trimmedKey = key.trim();
+  const trimmedValue = value.trim();
+
+  // Check if the key is under the current section
+  if (trimmedKey.startsWith(currentSection)) {
+    // If the section doesn't exist in sectionData, create an array for it
+    if (!sectionData[currentSection]) {
+      sectionData[currentSection] = [];
+    }
+
+    // Check if the key already exists in the current section
+    const existingKeyValue = sectionData[currentSection].find(item => Object.keys(item)[0] === trimmedKey);
+
+    if (existingKeyValue) {
+      // If the key exists, update its value
+      existingKeyValue[trimmedKey] = trimmedValue;
+    } else {
+      // If the key doesn't exist, add a new key-value pair to the array under the current section
+      sectionData[currentSection].push({ [trimmedKey]: trimmedValue });
+    }
+  } else {
+    // If the key is not under the current section, store it in keyValueArray
+    keyValueArray.push({ [trimmedKey]: trimmedValue });
+  }
+}
+
+// Example output
+console.log(sectionData);
+console.log(keyValueArray);
+
+

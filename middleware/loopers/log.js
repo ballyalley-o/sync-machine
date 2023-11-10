@@ -63,11 +63,9 @@ const logLooper = (lines, index) => {
       if (splitEl) {
         const lineArr = lines[i].split(',')
         const parsedEl = parseFloat(lineArr[el])
-        console.log('parsedEl: ', parsedEl)
         if (!isNaN(parsedEl)) {
           total += parsedEl
         }
-
       }
     }
     return total
