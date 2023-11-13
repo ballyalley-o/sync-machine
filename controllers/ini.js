@@ -173,6 +173,7 @@ const iniCompare = async (req, res) => {
 
           res.status(200).json({
             message: 'Changes',
+            total: compare.length,
             compare,
           })
         })
