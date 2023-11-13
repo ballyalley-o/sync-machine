@@ -1,67 +1,77 @@
 function extractBySection(arr, section) {
-  const changes = []
   const prevPropsArray = []
   const modPropsArray = []
+  const profileArray = []
+  const changes = []
   const paramArray = []
   const iniArray = []
-  const profileArray = []
   const properties = {}
   const keyValueArray = []
   let keyValue
-  let arrLines = []
-  let sectionArray = []
 
   if (!Array.isArray(arr)) {
-    arrLines = arr.split('\n')
+    let arrLines = arr.split('\n')
+
     changes.push(arrLines)
+    return changes
   }
 
   let currentSection = null
-  let arrSectionValues = []
-
   // get the param for the properties : i.e. [MachineParameters]
   for (const line of arr) {
     if (line.trim().startsWith('[') && line.trim().endsWith(']')) {
       currentSection = line.trim().slice(1, -1)
       paramArray.push(currentSection)
 
-      // get all the profiles
-      if (line.includes(section)) {
-        sectionArray.push(line)
-      }
+      // const [key, value] = line.split('=')
 
+      // if (key && value) {
+      //   keyValue = [key, value]
+      //   keyValueArray.push(keyValue)
+      //   properties[key.trim()] = value.trim()
+      // }
 
-      // const propertyMatch = line.match(/([^=]+)/)
+      // this takes out all the properties of each section
+    } else if (currentSection.includes(section)) {
+
       const [key, value] = line.split('=')
+
       // if Profile_1 just push the key and value
       if (key && value) {
-        keyValue = [key, value]
-        keyValueArray.push(keyValue)
-        properties[key.trim()] = value.trim()
-        sectionArray.push(keyValueArray)
-      }
-      // this takes out all the properties of each section
-    } else if (currentSection === section) {
-      // const propertyMatch = line.match(/([^=]+)/)
-      paramArray.map((section) => {
-        const [key, value] = section.split('=')
-        // if Profile_1 just push the key and value
-        if (key && value) {
-          keyValue = [key, value]
-          keyValueArray.push(keyValue)
-          properties[key.trim()] = value.trim()
-          sectionArray.push(keyValueArray)
+          const keyTrimmed = key.trim()
+          const valueTrimmed = value.trim()
+
+          if (!properties[currentSection]) {
+              properties[currentSection] = []
+          }
+        const existingKeyValue = properties[currentSection].find(item => {
+          const popKeys = Object.keys(item).pop().trim()
+          popKeys === keyTrimmed
+        })
+        if (existingKeyValue) {
+          existingKeyValue[keyTrimmed] = valueTrimmed
+
+        } else {
+          // if key-value pair length is not more than 1 under a section, dont push it, just make it a value of the currentSection
+          properties[currentSection].push({[keyTrimmed]: valueTrimmed})
         }
-      })
+
+      }
+    } else if (currentSection === paramArray[0]) {
+      const [key, value] = line.split('=')
+
+        arr.forEach(section => {
+          if (key && value) {
+            properties[key.trim()] = value.trim()
+            iniArray.push(properties)
+          }
+        });
+      }
     }
+  return properties
+
   }
 
-  console.log(section, 'section')
-  console.log(keyValueArray, 'keyValueArray')
-//   console.log(paramArray, 'param array')
-
-  return properties
-}
 
 
 
