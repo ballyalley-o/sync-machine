@@ -19,16 +19,17 @@ const extractSection = async (req, res) => {
         logger.error(err)
         return res.status(500).json({ error: err.message })
       }
-      // TODO: use user input path instead of this dev path
+      // TODO: use user input path instead of this dev path, use a prompt
         const linesOne = iniOne.split('\n')
 
         const extracted = extractBySection(linesOne, 'Profile_')
+        const extractSwitch = extractBySection(linesOne, 'MachineParameters')
 
-        // TODO: compare by param names instead of lines, add a different method: if the param has multiple include the tool names/parent name
         // const compare = compareActions.compareArrByProperty(linesOne, linesTwo)
         res.status(200).json({
             message: 'Extract Successful',
             extracted,
+            extractSwitch
         })
     })
   } else {
