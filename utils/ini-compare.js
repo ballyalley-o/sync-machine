@@ -1,4 +1,3 @@
-const { logger } = require('../middleware')
 
 
 function compareArr(prevArr, modArr) {
@@ -28,6 +27,8 @@ function compareArr(prevArr, modArr) {
   return changes
 }
 
+// TODO: will refactor this since this was logically incorrect, this was more of extractor
+ // compare by param names instead of lines, add a different method: if the param has multiple include the tool names/parent name
 function compareArrByProperty(prevArr, modArr) {
   const changes = []
   const prevPropsArray = []
@@ -37,7 +38,6 @@ function compareArrByProperty(prevArr, modArr) {
   const profileArray = []
   const properties = {}
 
-  const sectionData = {}
   const keyValueArray = []
   let keyValue
 
@@ -65,16 +65,14 @@ function compareArrByProperty(prevArr, modArr) {
 
       const [key, value] = line.split('=')
 
-      // if Profile_1 just push the key and value
       if (key && value) {
         keyValue = [key, value]
         keyValueArray.push(keyValue)
         properties[key.trim()] = value.trim()
-        param
       }
       // this takes out all the properties of each section
-    } else if (currentSection.includes('Profile_')) {
-      // const propertyMatch = line.match(/([^=]+)/)
+    } else if (currentSection.includes('Switch_')) {
+
       const [key, value] = line.split('=')
 
       // if Profile_1 just push the key and value
@@ -82,35 +80,25 @@ function compareArrByProperty(prevArr, modArr) {
         const keyTrimmed = key.trim()
         const valueTrimmed = value.trim()
 
-        if (currentSection.startsWith(currentSection)) {
-          if (!properties[currentSection]) {
-              properties[currentSection] = []
-          }
-          const existingKeyValue = properties[currentSection].find(item => Object.keys(item)[0] === keyTrimmed)
-          // properties[currentSection].push([{valueTrimmed}])
-          if (existingKeyValue) {
-            existingKeyValue[keyTrimmed] = valueTrimmed
-          } else {
-            // if key-value pair length is not more than 1 under a section, dont push it, just make it a value of the currentSection
-            properties[currentSection].push({[keyTrimmed]: valueTrimmed})
-          }
-        } else {
-          const existingKeyValue = properties[currentSection].find(item => Object.keys(item)[0] === keyTrimmed)
-          // properties[currentSection].push([{valueTrimmed}])
-          if (existingKeyValue) {
-            existingKeyValue[keyTrimmed] = valueTrimmed
-          } else {
-            properties[currentSection].push({[currentSection]:{[keyTrimmed]: valueTrimmed}})
-          }
-          keyValueArray.push({[currentSection]:{[keyTrimmed] : valueTrimmed}})
-        }
-        // keyValue = {[currentSection]:{[key.trim()]: value.trim()}}
-        // keyValueArray.push(keyValue)
+      if (!properties[currentSection]) {
+          properties[currentSection] = []
+      }
+      const existingKeyValue = properties[currentSection].find(item => {
+        const popKeys = Object.keys(item).pop().trim()
+        popKeys === keyTrimmed
+      })
+      if (existingKeyValue) {
+        existingKeyValue[keyTrimmed] = valueTrimmed
+        console.log('existing')
+      } else {
+        // if key-value pair length is not more than 1 under a section, dont push it, just make it a value of the currentSection
+        properties[currentSection].push({[keyTrimmed]: valueTrimmed})
+        console.log(properties[currentSection], 'PROPS with currentsection')
+      }
       }
     } else if (currentSection === paramArray[0]) {
       const [key, value] = line.split('=')
 
-      console.log('i am called')
       prevArr.forEach(section => {
         if (key && value) {
           properties[key.trim()] = value.trim()
@@ -120,10 +108,10 @@ function compareArrByProperty(prevArr, modArr) {
     }
   }
 
-  console.log(keyValueArray, 'keyValueArray')
-  console.log(profileArray, 'profileArray')
-  console.log(paramArray, 'paramArray')
-  console.log(properties, 'properties')
+  // console.log(keyValueArray, 'keyValueArray')
+  // console.log(profileArray, 'profileArray')
+  // console.log(paramArray, 'paramArray')
+  // console.log(prevArr, 'prevArr')
 
   const prevPropertyValues = prevArr.map((item) => {
     const [key, value] = item.split('=')
@@ -155,8 +143,7 @@ function compareArrByProperty(prevArr, modArr) {
   //   changes.push(`Removed ${propertyName}: '${prevPropsArray[i]}'`)
   // }
 
-
-  return changes
+  return properties
 }
 
 
