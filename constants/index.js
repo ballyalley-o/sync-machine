@@ -3,5 +3,6 @@ module.exports = {
   URL: require('./url'),
   BURN_IN_PARAMS: require('./burn-in-params'),
   RESPONSE: require('./reponse'),
-  COUNTRY: require('./country')
+  COUNTRY: require('./country'),
+  TARGETS: require('./targets')
 }
