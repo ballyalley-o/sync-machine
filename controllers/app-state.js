@@ -389,7 +389,6 @@ const coilWatcher = async (req, res) => {
        }
      })
     } catch (err) {
-
       logger.error(err)
 
       res
