@@ -1,6 +1,4 @@
-// const logger = require('./logger')
 
-// const express = require("express")
 
 const sysLooper = (lines, index) => {
   let el
@@ -17,8 +15,6 @@ const sysLooper = (lines, index) => {
       el = null
   }
 
-  let total = 0
-
   for (let i = 0; i < lines.length; i++) {
     const splitEl = lines[i].includes(',')
 
@@ -32,14 +28,9 @@ const sysLooper = (lines, index) => {
         return lineArr[el]
       } else {
         // for num types
-        parsedEl = parseFloat(lineArr[el])
+        parsedEl = lineArr[el]
         return parsedEl
       }
-      // for calculating total
-      // console.log(lineArr[4], 'COIL PARSED EL')
-      // if (!isNaN(parsedEl)) {
-      //   total += parsedEl
-      // }
     }
   }
 }
