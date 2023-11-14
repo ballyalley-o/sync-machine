@@ -8,6 +8,7 @@ const { logger, asyncHandler } = require('../middleware')
 const USERPROFILE = GLOBAL.userProfile
 
 const testFilesPath = path.join(__dirname, '..', 'data', 'Howick.ini')
+const testSysLogPath = path.join(__dirname, '..', 'data', 'logs', 'SYSTEM_log_2023-12.txt')
 
 const dynamicRootPath = (fileName) =>
   path.join(USERPROFILE, 'AppData', 'Roaming', 'HowickHLCv3', fileName)
@@ -88,5 +89,6 @@ const paths = {
   livePath,
   rootPath,
   iniPath,
+  testSysLogPath
 }
 module.exports = paths
