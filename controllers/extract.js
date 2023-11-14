@@ -1,35 +1,31 @@
 const fs = require('fs')
 const { logger, extractBySection } = require('../middleware')
-const { paths, compareActions } = require('../utils')
+const { paths, normalizeParam } = require('../utils')
 const { GLOBAL } = require('../config')
 const { BURN_IN_PARAMS, RESPONSE } = require('../constants')
 
 const USERPROFILE = GLOBAL.userProfile
 
-// @desc compare ini
-// @path /api/0.0.1/ini/compare
+// @desc extract sections in ini
+// @path /api/0.0.1/ini/extract
 // @access Private - Dev [not implemented]
 const extractSection = async (req, res) => {
   if (USERPROFILE) {
-    // using promisified callbacks from fs --not available for nodev9.11.1
-    // const iniOne =  fs.readFile(paths.iniPath, 'utf8')
-    // const iniTwo =  fs.readFile(paths.testFilesPath, 'utf8')
     fs.readFile(paths.iniPath, 'utf8', (err, iniOne) => {
       if (err) {
         logger.error(err)
         return res.status(500).json({ error: err.message })
       }
-      // TODO: use user input path instead of this dev path, use a prompt
+      // TODO: use a prompt to enter extract value
         const linesOne = iniOne.split('\n')
 
-        const extracted = extractBySection(linesOne, 'Profile_')
-        const extractSwitch = extractBySection(linesOne, 'MachineParameters')
+        const EXTRACT_VALUE = 'Profile_' // <- section to extract
+        const extracted = extractBySection(linesOne, EXTRACT_VALUE)
 
-        // const compare = compareActions.compareArrByProperty(linesOne, linesTwo)
         res.status(200).json({
-            message: 'Extract Successful',
+            message: RESPONSE.success[200],
+            success: true,
             extracted,
-            extractSwitch
         })
     })
   } else {
@@ -37,6 +33,55 @@ const extractSection = async (req, res) => {
   }
 }
 
+// @desc extract sections in ini dynamically
+// @path /api/0.0.1/ini/:section
+// @access Private - Dev [not implemented]
+const extractDynamic = async (req, res, next) => {
+  const dynamicSection = await req.params.section
+  const normalizedDynamicSection = normalizeParam(dynamicSection, 'profile')
+  let param;
 
-const extractController = { extractSection }
+  switch (normalizedDynamicSection) {
+    case 'profile':
+      param = 'Profile_'
+      break
+    case 'machineparameters':
+      param = 'MachineParameters'
+
+    default:
+      param = null
+  }
+
+  console.log(param, 'PARAM')
+  if (dynamicSection) {
+    if (USERPROFILE) {
+      fs.readFile(paths.iniPath, 'utf8', (err, data) => {
+        if (err) {
+          logger.error(err)
+          return res.status(500).json({ error: err.message })
+        }
+        const lines = data.split('\n')
+        const section = extractBySection(lines, String(param))
+
+        res.status(200).json({
+          message: RESPONSE.success[200],
+          success: true,
+          section
+        })
+      })
+    } else {
+      logger.error(`${USERPROFILE} NOT FOUND`)
+      res.status(404).json({
+        error: RESPONSE.error[404]
+      })
+    }
+  } else {
+    res.status(400)
+    throw new Error('INVALID REQUEST')
+  }
+}
+
+
+
+const extractController = { extractSection, extractDynamic }
 module.exports = extractController
