@@ -2,7 +2,7 @@ const fs = require('fs')
 const fetch = require('node-fetch')
 const WebSocket = require('ws')
 const { logger, coilLooper, sysLooper } = require('../middleware')
-const { paths, logLive, nuller } = require('../utils')
+const { paths, nuller } = require('../utils')
 const { GLOBAL } = require('../config')
 const { URL } = require('../constants')
 
@@ -11,7 +11,6 @@ const USERPROFILE = GLOBAL.userProfile
 const urlPath = URL.app_state.extract
 
 let coilSpecs
-let jsonData
 
 // @desc full Coil log
 // @path /api/v1/log/coil
@@ -107,8 +106,8 @@ const parsedCoilLog = async (req, res) => {
   }
 }
 
-// @desc Totals for Coil log
-// @path /api/v1/log/parsed-coil-log
+// @desc Live Data Logging
+// @path /api/v1/log/sys
 // @access Public [not implemented]
 const sysLog = async (req, res) => {
   const filePath = await paths.livePath('sys', 'txt').then((result) => {
@@ -117,13 +116,8 @@ const sysLog = async (req, res) => {
     return promisePath
   })
 
-  // const coilState = await fetch(URL.app_state.extract, {
-  //   method: 'GET',
-  // })
-  //   const appStateFetch = await coilState.json()
-
   if (USERPROFILE) {
-    fs.readFile(filePath, 'utf8', (err, data) => {
+    fs.readFile(paths.testSysLogPath, 'utf8', (err, data) => {
       if (err) {
         res.status(500).json({ error: err.message })
         return
@@ -135,7 +129,8 @@ const sysLog = async (req, res) => {
         const dateLog = sysLooper(lines, 'date')
         const sysLog = sysLooper(lines, 'log')
 
-        res.status(200).json({ dateLog, sysLog, lines })
+        // FIXME: Data ouput of this, its not parsed
+        res.status(200).json({ date: dateLog, log: sysLog, data: lines  })
       } catch (err) {
         res.status(500).json({ error: err.message })
       }
@@ -179,6 +174,7 @@ const sysLog = async (req, res) => {
   //   }
   // }
 
+  // TODO: Under development!
   // // @desc websockets live updates with the log
   // // @path /api/v1/log/sys
   // // @access Public [not implemented]
