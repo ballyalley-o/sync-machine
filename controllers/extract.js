@@ -2,7 +2,7 @@ const fs = require('fs')
 const { logger, extractBySection } = require('../middleware')
 const { paths, normalizeParam } = require('../utils')
 const { GLOBAL } = require('../config')
-const { BURN_IN_PARAMS, RESPONSE } = require('../constants')
+const { TARGETS, RESPONSE } = require('../constants')
 
 const USERPROFILE = GLOBAL.userProfile
 
@@ -38,21 +38,26 @@ const extractSection = async (req, res) => {
 // @access Private - Dev [not implemented]
 const extractDynamic = async (req, res, next) => {
   const dynamicSection = await req.params.section
-  const normalizedDynamicSection = normalizeParam(dynamicSection, 'profile')
   let param;
 
+  const normalizedDynamicSection = await normalizeParam(dynamicSection, TARGETS)
   switch (normalizedDynamicSection) {
     case 'profile':
-      param = 'Profile_'
+      param = 'Profile'
       break
     case 'machineparameters':
       param = 'MachineParameters'
-
+      break
+    case 'llc':
+      param = 'LLC'
+      break
+    case 'windowmode':
+      param = 'WindowMode'
+      break
     default:
       param = null
   }
 
-  console.log(param, 'PARAM')
   if (dynamicSection) {
     if (USERPROFILE) {
       fs.readFile(paths.iniPath, 'utf8', (err, data) => {
