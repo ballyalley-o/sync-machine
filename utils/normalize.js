@@ -1,3 +1,4 @@
+const { RESPONSE } = require('../constants')
 const { logger } = require('../middleware')
 
 /**
@@ -18,19 +19,18 @@ async function normalizeParam(word, targetArr) {
       .map((_, i) => (str1[i] === str2[i] ? 1 : 0))
       .reduce((acc, val) => acc + val, 0)
 
+    //   TEST: material. remove for prod
     console.log(dist, 'DIST')
     console.log(len, 'LENGTH')
     return dist / len
   }
   /**
+   * This function will loop in the targets array if which one is the closest to the param name, and return that param
    * @param {string} input - param entered
-   * @param {string} target - target param
-   * @param {number} cutoff - 0.6 by default, est how correct should the param entered
-   * @returns returns the target param if > 0.6 correct
+   * @param {string[]} targets - target param
+   * @param {number} cutoff - 0.4 by default (declared on the top^), est how correct should the param entered
+   * @returns returns the target param if > 0.4 correct
    */
-  // async function closeMatch(input, target, cutoff) {
-  //     return await similarity(input.toLowerCase(), target) > cutoff;
-  // }
   async function findClosest(input, targets, cutoff) {
     let closeMatch = null
     let maxSimilarity = 0
@@ -47,16 +47,15 @@ async function normalizeParam(word, targetArr) {
 
   try {
     const result = await findClosest(word, targetArr, CUTOFF)
-    // TODO: add these to responses constants
     if (result) {
-      logger.info(`NORMALIZED ${word} to ${result}`)
+      logger.info(RESPONSE.success.normalized(word, result))
       return result
     } else {
-      logger.error(`FAILED TO NORMALIZE ${word}`)
+      logger.error(RESPONSE.error.failedNormalize(word))
       return word.toLowerCase()
     }
   } catch (error) {
-    logger.error(`FAILED TO NORMALIZE ${word}`)
+    logger.error()
     return word.toLowerCase()
   }
 }
