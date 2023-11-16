@@ -8,7 +8,8 @@ const pathParams = {
   app_state: '/app-state',
   analog:'/analog',
   log: '/log',
-  ini: '/ini'
+  ini: '/ini',
+  profile: '/profile'
 }
 
 const apiPath = (module) => {
@@ -22,6 +23,7 @@ const PATH = {
   analog: apiPath(pathParams.analog),
   log: apiPath(pathParams.log),
   ini: apiPath(pathParams.ini),
+  profile: apiPath(pathParams.profile),
 }
 
 

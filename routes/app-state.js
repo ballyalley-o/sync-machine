@@ -8,7 +8,6 @@ const router = express.Router()
  * @path - baseUrl/api/0.0.1/app-state
  */
 router.get('/', appStateController.reader)
-router.get('/watch', appStateController.logWatcher)
 // TODO: create a path for each logType
 // router.get('/erp', readerController.liveWatchErp)
 router.get('/extract', appStateController.extract)

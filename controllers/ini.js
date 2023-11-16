@@ -2,7 +2,7 @@ const fs = require('fs')
 const { logger, iniLooper } = require('../middleware')
 const { paths, compareActions } = require('../utils')
 const { GLOBAL } = require('../config')
-const { BURN_IN_PARAMS, RESPONSE } = require('../constants')
+const { RESPONSE } = require('../constants')
 
 const USERPROFILE = GLOBAL.userProfile
 
@@ -140,7 +140,7 @@ const iniSimulation = async (req, res) => {
   }
 }
 
-// UNDER DEVELOPMENT ======================================================
+// TODO: UNDER DEVELOPMENT ======================================================
 
 // @desc compare ini
 // @path /api/0.0.1/ini/compare

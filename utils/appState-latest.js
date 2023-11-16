@@ -2,6 +2,7 @@ const fs = require('fs')
 const path = require('path')
 const { GLOBAL } = require('../config')
 const { logger } = require('../middleware')
+const { RESPONSE } = require('../constants')
 
 const USERPROFILE = GLOBAL.userProfile
 
@@ -34,7 +35,7 @@ const extType = {
 const latestState = (type, ext, callback) => {
   fs.readdir(appStatePath, (err, files) => {
     if (err) {
-      console.error('Error reading folder:', err)
+      logger.error(err.message)
       return
     }
     // Filter the files for appState
@@ -43,15 +44,14 @@ const latestState = (type, ext, callback) => {
     )
 
     if (appFiles.length === 0) {
-      logger.log(`No ${type + ext} file found in the folder.`)
+      logger.error(RESPONSE.error.file404(type, ext))
       if (callback) {
         callback(null, null)
       }
       return
     }
 
-
-    logger.log('Appstate file:', appFiles)
+    logger.log(RESPONSE.success.file200(appFiles))
 
     if (callback) {
       callback(null, appFiles)
