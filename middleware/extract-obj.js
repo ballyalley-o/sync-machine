@@ -3,7 +3,7 @@
  *
  * @param {string[]} arr - array of ini config parameters
  * @param {string} section - section to extract: Default is extract-all
- * @returns
+ * @returns extracted sections and its keys and values as array
  */
 function extractBySectionObj(arr, section) {
     const changes = []
