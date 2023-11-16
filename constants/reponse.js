@@ -5,7 +5,8 @@ const RESPONSE = {
     200: 'OK: Request granted',
     201: 'CREATED: Request created',
     normalized: (word, result) => ` Normalized ${word} to ${result} `,
-    204: 'NO CONTENT: The server successfully processed the request but there is no content to send in the response.'
+    204: 'NO CONTENT: The server successfully processed the request but there is no content to send in the response.',
+    file200: (file) => `OK: File: ${file}`,
   },
   error: {
     400: 'BAD REQUEST: Client request is Invalid',
@@ -19,7 +20,9 @@ const RESPONSE = {
     504: 'GATEWAY TIMEOUT: The server acting as a gateway did not receive a timely response from an upstream server',
     userProfile404: (userProfile) => `${userProfile} NOT FOUND`,
     failedNormalize: (word) => `Failed to normalize ${word}`,
-    underScoreIndex: 'Underscore index Not Found'
+    underScoreIndex: 'Underscore index Not Found',
+    file404: (type, ext) => `No ${type + ext} file found in the folder.`,
+    parseErr: (err) => `Error parsing JSON: ${err}`
   }
 }
 
