@@ -5,5 +5,5 @@ module.exports = {
   appStateLive: require('./appState-latest'),
   nuller: require('./nuller'),
   compareActions: require('./ini-compare'),
-  normalizeParam: require('./normalize'),
+  normalize: require('./normalize'),
 }

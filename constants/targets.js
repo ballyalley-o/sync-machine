@@ -10,7 +10,15 @@ const TARGETS = [
   'measurementsystem',
   'machineparameters',
   'llcparameters',
-  'label',
+  'llc',
+  'labelprinter',
+  'emaillist',
+  'emailconnection',
+  'toolpositionlimits',
+  'tooldef',
+  'analoguedisplay',
+  'switch',
+  'settings'
 ]
 
 module.exports = TARGETS

@@ -1,6 +1,6 @@
 const fs = require('fs')
 const { logger, extractBySection } = require('../middleware')
-const { paths, normalizeParam } = require('../utils')
+const { paths, normalize } = require('../utils')
 const { GLOBAL } = require('../config')
 const { TARGETS, RESPONSE } = require('../constants')
 
@@ -40,23 +40,8 @@ const extractDynamic = async (req, res, next) => {
   const dynamicSection = await req.params.section
   let param;
 
-  const normalizedDynamicSection = await normalizeParam(dynamicSection, TARGETS)
-  switch (normalizedDynamicSection) {
-    case 'profile':
-      param = 'Profile'
-      break
-    case 'machineparameters':
-      param = 'MachineParameters'
-      break
-    case 'llc':
-      param = 'LLC'
-      break
-    case 'windowmode':
-      param = 'WindowMode'
-      break
-    default:
-      param = null
-  }
+  const normalizedDynamicSection = await normalize.normalizeParam(dynamicSection, TARGETS)
+  const normalized = normalize.switchParam(param, normalizedDynamicSection)
 
   if (dynamicSection) {
     if (USERPROFILE) {
@@ -66,7 +51,7 @@ const extractDynamic = async (req, res, next) => {
           return res.status(500).json({ error: err.message })
         }
         const lines = data.split('\n')
-        const section = extractBySection(lines, String(param))
+        const section = extractBySection(lines, String(normalized))
 
         res.status(200).json({
           message: RESPONSE.success[200],
