@@ -2,6 +2,7 @@ const fs = require('fs')
 const {logger, logLooper} = require('../middleware')
 const { paths, logLive } = require('../utils')
 const { GLOBAL } = require('../config')
+const { RESPONSE } = require('../constants')
 
 
 const USERPROFILE = GLOBAL.userProfile
@@ -139,7 +140,7 @@ const extract = async (req, res ) => {
 
     await paths.rootPath('appState', 'json').then((result) => {
       appStatePath = result
-      logger.log(appStatePath, 'APP STATE PATH')
+      logger.log(appStatePath)
       return appStatePath
     })
 
@@ -153,9 +154,7 @@ const extract = async (req, res ) => {
         jsonData = JSON.parse(data)
         return jsonData
       } catch (err) {
-
-        logger.error('Error parsing JSON:', err)
-
+        logger.error(RESPONSE.error.parseErr(err.message))
         res
         .status(500)
         .json({ error: err.message })
@@ -287,7 +286,6 @@ const frameSetExtract = async (req, res) => {
               })
             }
 
-
             res.status(200).json({ appData, parentFrameIds })
         } catch (err) {
             logger.error(err)
@@ -299,61 +297,6 @@ const frameSetExtract = async (req, res) => {
   }
 }
 
-
-// @desc Watcher for logs
-// @path /api/v1/app-state/watch
-// @access Public [not implemented]
-const logWatcher = async (req, res) => {
-  if (USERPROFILE) {
-    const watcher = fs.watch(paths.dynamicRootPath('appState.json'), (eventType, filename) => {
-      if (eventType === 'change') {
-        try {
-          console.log(`${filename} has changed`)
-          // read the file
-          fs.readFileSync(dynamicRootPath, 'utf8', (err, data) => {
-            if (err) {
-              res.status(500).json({ error: err })
-              return
-            }
-            try {
-              const jsonData = JSON.parse(data)
-              res.json(jsonData)
-            } catch (err) {
-              console.error('Error parsing JSON:', parseError)
-              res
-              .status(500)
-              .json({ error: err.message })
-            }
-          })
-        } catch (err) {
-
-          logger.error(err.message)
-          res
-            .status(500)
-            .json({error: err.message})
-
-        }
-      }
-    })
-
-    // close the watcher when an error occured
-    watcher.on('error', (error) => {
-      console.log('error while watching the data', error)
-    })
-
-    process.on('SIGNT', () => {
-      watcher.close()
-      process.exit()
-    })
-  } else {
-    console.log('USERPROFILE is not provided')
-  }
-}
-
-
-// ----------------------------------------------------------------
-// warning: a bit messy, clean-up will be done after
-
 // @desc R&D for watching coil log
 // @path /api/v1/app-state/coil
 // @access Public [not implemented]
@@ -362,7 +305,7 @@ const coilWatcher = async (req, res) => {
   let promisePath
 
   if (USERPROFILE) {
-    const filePath = await paths.livePath('coil', 'txt').then((result) => {
+    await paths.livePath('coil', 'txt').then((result) => {
       promisePath = result
       logger.log(promisePath)
       return promisePath
@@ -381,7 +324,7 @@ const coilWatcher = async (req, res) => {
 
           res.status(200).json(lines)
        } catch (err) {
-         logger.error('Error parsing JSON:', err, err)
+         logger.error(RESPONSE.error.parseErr(err.message))
 
          res
          .status(500)
@@ -393,17 +336,16 @@ const coilWatcher = async (req, res) => {
 
       res
       .status(500)
-      .send({ error: err.message })
+      .json({ error: err.message })
     }
   } else {
-    console.log('USER PROFILE NOT FOUND')
-    res.status(403).send('User profile not found')
+    logger.error(RESPONSE.error.userProfile404(USERPROFILE))
+    res.status(404).json({error: error.message})
   }
 }
 
 const appStateController = {
   reader,
-  logWatcher,
   readerErpTXT,
   extract,
   coilWatcher,
