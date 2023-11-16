@@ -1,5 +1,5 @@
 const fs = require('fs')
-const { logger, extractBySection } = require('../middleware')
+const { logger, extractBySection, extractBySectionObj } = require('../middleware')
 const { paths, normalize } = require('../utils')
 const { GLOBAL } = require('../config')
 const { TARGETS, RESPONSE } = require('../constants')
@@ -19,15 +19,13 @@ const extractSection = async (req, res) => {
       // TODO: use a prompt to enter extract value
         const linesOne = iniOne.split('\n')
 
-        const EXTRACT_VALUE = 'Profile_' // <- section to extract
-        const extracted = extractBySection(linesOne, EXTRACT_VALUE)
-
-        const jsonExtracted = JSON.stringify(extracted)
+        const EXTRACT_VALUE = '' // <- section to extract, default will extract all
+        const extracted = extractBySectionObj(linesOne, EXTRACT_VALUE)
 
         res.status(200).json({
-            message: RESPONSE.success[200],
-            success: true,
-            jsonExtracted,
+          message: RESPONSE.success[200],
+          success: true,
+          extracted
         })
     })
   } else {
@@ -63,7 +61,7 @@ const extractDynamic = async (req, res, next) => {
           return res.status(500).json({ error: err.message })
         }
         const lines = data.split('\n')
-        const section = extractBySection(lines, String(normalized))
+        const section = extractBySectionObj(lines, String(normalized))
 
         res.status(200).json({
           message: RESPONSE.success[200],
