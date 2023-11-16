@@ -1,3 +1,10 @@
+
+/**
+ *
+ * @param {string[]} arr
+ * @param {*} section
+ * @returns
+ */
 function extractBySection(arr, section) {
   const changes = []
   const paramArray = []
@@ -48,8 +55,5 @@ function extractBySection(arr, section) {
   return properties
 
   }
-
-
-
 
 module.exports = extractBySection

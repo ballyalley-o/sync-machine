@@ -1,5 +1,6 @@
 module.exports = {
   extractBySection: require('./extract'),
+  extractBySectionObj: require('./extract-obj'),
   logger: require('./logger'),
   logLooper: require('./loopers/log'),
   coilLooper: require('./loopers/coil'),
