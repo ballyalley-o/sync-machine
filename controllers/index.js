@@ -4,4 +4,5 @@ module.exports = {
   logController: require('./log'),
   iniController: require('./ini'),
   extractController: require('./extract'),
+  profileController: require('./profile')
 }
