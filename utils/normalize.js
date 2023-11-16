@@ -60,7 +60,8 @@ async function normalizeParam(word, targetArr) {
   }
 }
 
-function switchParam(param, section) {
+function switchParam(param, section, number) {
+
   switch (section) {
     case 'profile':
       param = 'Profile'
@@ -104,8 +105,14 @@ function switchParam(param, section) {
     case 'tooldef':
       param = 'ToolDef_'
       break
+    case `tooldef_${number}`:
+      param = `ToolDef_${number}`
+      break
     case 'analoguedisplay':
       param = 'Analogue_Display'
+      break
+    case `analoguedisplay_${number}`:
+      param = `Analogue_Display_${number}`
       break
     case 'switch':
       param = 'Switch'
@@ -113,6 +120,7 @@ function switchParam(param, section) {
     case 'settings':
       param = 'Settings'
       break
+
     default:
       param = null
   }
