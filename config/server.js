@@ -11,6 +11,7 @@ const GLOBAL = require('./global.js')
 dotenv.config()
 
 const PORT = GLOBAL.port
+
 /**
  * @param app - express app
  * @param express.json() - express body parser
@@ -18,7 +19,6 @@ const PORT = GLOBAL.port
  * @param morgan() - morgan logger {short}
  * @param registerRoutes() - mount the routes/routing traffic
  * @param serfer - http server for web sockets
- *
  */
 class App {
   constructor() {
