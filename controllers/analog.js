@@ -38,7 +38,7 @@ const analog_reader = async (req, res) => {
             Drive_Frequency: driveFrequency
         }
 
-        res.json(analogDisplay)
+        res.status(200).json(analogDisplay)
       } catch (parseError) {
         logger.error('Error parsing JSON:', parseError)
         res.status(500).json({ error: parseError.message })

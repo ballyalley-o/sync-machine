@@ -7,6 +7,10 @@ const absPath = (...params) => {
   return API + params.join('/')
 }
 
+const INI = {
+
+}
+
 const LOG = {
   coil: 'coil',
   coil_parsed: 'parsed-coil-log',
@@ -21,6 +25,10 @@ const APPSTATE ={
 }
 
 const URL = {
+  ini: {
+    this: absPath(PATH.ini),
+    section: (param) => absPath(PATH.ini, param)
+  },
   log: {
     coil: absPath(PATH.log, LOG.coil),
     coil_parsed: absPath(PATH.log, LOG.coil_parsed)
@@ -31,7 +39,7 @@ const URL = {
     latest: absPath(PATH.app_state, APPSTATE.latest),
     win: absPath(PATH.app_state, APPSTATE.win),
     analog: absPath(PATH.app_state, APPSTATE.analog),
-    frames: absPath(PATH.app_state, APPSTATE.frames)
+    frames: absPath(PATH.app_state, APPSTATE.frames),
   },
 }
 

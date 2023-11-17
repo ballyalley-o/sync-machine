@@ -1,7 +1,7 @@
 module.exports = {
-    Coil: require('.Coil'),
-    Production: require('./Production'),
-    ERP: require('./ERP'),
-    HourlyRate: require('./HourlyRate')
+    Coil: require('./log/Coil'),
+    Production: require('./log/Production'),
+    ERP: require('./log/ERP'),
+    HourlyRate: require('./log/HourlyRate')
 }
 
