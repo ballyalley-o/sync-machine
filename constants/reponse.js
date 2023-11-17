@@ -7,6 +7,7 @@ const RESPONSE = {
     normalized: (word, result) => ` Normalized ${word} to ${result} `,
     204: 'NO CONTENT: The server successfully processed the request but there is no content to send in the response.',
     file200: (file) => `OK: File: ${file}`,
+    profile201: 'CREATED: Profile Added'
   },
   error: {
     400: 'BAD REQUEST: Client request is Invalid',
