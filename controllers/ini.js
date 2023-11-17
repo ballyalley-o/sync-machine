@@ -24,6 +24,7 @@ const iniExtract = async (req, res) => {
         for (const line of lines) {
              const equalSign = line.replace(/=/g, ':')
              iniLines.push(equalSign)
+
         }
 
         // parse ini to push to array
