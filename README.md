@@ -1,7 +1,11 @@
-# flickseq_reader
-Server | Express-Axios server
+<br/>
+
+![SYNC-MACHINE](https://i.ibb.co/VqrpQBL/Screenshot-2023-11-17-at-2-15-04-PM.png)
 
 
-> Description
+Server | Express
 
-### Express server to host the Machine's state and logs
+
+> ## Description
+
+> Express server to host and communicate with Howick Portal to sync Machine's state and logs.
