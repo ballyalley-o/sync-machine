@@ -951,3 +951,149 @@ function extractBySection(arr, section) {
   return properties
 
   }
+
+
+  const iniExtract = async (req, res) => {
+    if (USERPROFILE) {
+
+      fs.readFile(paths.iniPath, 'utf8', (err, data) => {
+        if (err) {
+          res.status(500).json({ error: err.message });
+          return;
+        }
+        try {
+          const lines = data.split('\n')
+
+          let iniLines = []
+
+          for (const line of lines) {
+            const equalSign = line.replace(/=/g, ':')
+            iniLines.push(equalSign)
+          }
+
+          // Parse iniLines array to JSON
+          const jsonData = JSON.stringify(iniLines);
+
+          // Send the JSON response
+          res.status(200).json(jsonData);
+        } catch (err) {
+          logger.error(err)
+          res.status(500).json({ error: err.message })
+        }
+      })
+    }
+  }
+
+
+  // if Profile_1 just push the key and value
+if (key && value) {
+  const keyTrimmed = key.trim();
+  const valueTrimmed = value.trim();
+
+  if (!properties[currentSection]) {
+      properties[currentSection] = {};
+  }
+
+  const existingKeyValue = properties[currentSection][keyTrimmed];
+
+  if (existingKeyValue !== undefined) {
+      // If the key already exists, update its value
+      properties[currentSection][keyTrimmed] = valueTrimmed;
+  } else {
+      // If key-value pair length is not more than 1 under a section,
+      // make it a value of the currentSection
+      properties[currentSection][keyTrimmed] = valueTrimmed;
+  }
+}
+
+
+const fs = require('fs');
+const util = require('util');
+const writeFileAsync = util.promisify(fs.writeFile);
+
+const addProfile = asyncHandler(async (req, res, next) => {
+    if (USERPROFILE) {
+        try {
+            const profile = req.body;
+
+            // Assuming you have the necessary information in req.body (e.g., profileName, size)
+            const { profileName, size } = profile;
+
+            // Construct the profile data
+            const profileData = `[Profile_${profileName.length + 1}]\nSize: ${size}`;
+
+            // Specify the file path where you want to write the INI file
+            const filePath = 'path/to/your/file.ini';
+
+            // Write the profile data to the INI file
+            await writeFileAsync(filePath, profileData);
+
+            res.status(200).json({ success: true, message: 'Profile added successfully' });
+        } catch (error) {
+            console.error(error.message);
+            res.status(400).json({ error: error.message });
+        }
+    } else {
+        res.status(403).json({ error: 'Unauthorized access' });
+    }
+});
+
+const fs = require('fs');
+const util = require('util');
+const readFileAsync = util.promisify(fs.readFile);
+const writeFileAsync = util.promisify(fs.writeFile);
+
+const addProfile = asyncHandler(async (req, res, next) => {
+    if (USERPROFILE) {
+        try {
+            const profile = req.body;
+
+            // Assuming you have the necessary information in req.body (e.g., profileName, size)
+            const { profileName, size } = profile;
+
+            // Construct the profile data
+            const newProfileData = `[Profile_${profileName.length + 1}]\nSize=${size}`;
+
+            // Specify the file path where you want to store the INI file
+            const filePath = 'path/to/your/file.ini';
+
+            // Read the existing content of the file
+            const existingContent = await readFileAsync(filePath, 'utf8');
+
+            // Find the position where you want to insert the new profile
+            const profileSectionIndex = existingContent.indexOf('[Profile_2]');
+
+            // Insert the new profile data after the specified section
+            const updatedContent =
+                existingContent.slice(0, profileSectionIndex) +
+                newProfileData +
+                existingContent.slice(profileSectionIndex);
+
+            // Write the updated content back to the INI file
+            await writeFileAsync(filePath, updatedContent);
+
+            res.status(200).json({ success: true, message: 'Profile added successfully' });
+        } catch (error) {
+            console.error(error.message);
+            res.status(400).json({ error: error.message });
+        }
+    } else {
+        res.status(403).json({ error: 'Unauthorized access' });
+    }
+});
+
+
+const profileData = `\n[Profile_${profileName.length + 1}]\nSize=${size}\n`;
+
+const filePath = paths.testFilesPath;
+
+const iniContents = await readFileAsync(filePath, 'utf8');
+
+// Find the index to insert the new profile (after the last profile or at the end)
+const lastProfileIndex = iniContents.lastIndexOf('[Profile_');
+const profileSectionIndex = lastProfileIndex !== -1 ? lastProfileIndex + `[Profile_`.length : iniContents.length;
+
+// Insert the new profile data
+const updatedContents = iniContents.slice(0, profileSectionIndex) + profileData + iniContents.slice(profileSectionIndex);
+
+await writeFileAsync(filePath, updatedContents);
