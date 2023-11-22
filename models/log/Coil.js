@@ -25,7 +25,7 @@ const CoilSchema = new Schema({
         type:String
     }
 },{
-    timestamps: true
+    collection: 'Coil'
 })
 
 

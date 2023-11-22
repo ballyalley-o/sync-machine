@@ -2,7 +2,7 @@ const RESPONSE = {
   iniSimulation: 'Ready for Simulation.',
   noChanges: 'No changes found',
   success: {
-    200: 'OK: Request granted',
+    200: 'OK: Request fetched',
     201: 'CREATED: Request created',
     normalized: (word, result) => ` Normalized ${word} to ${result} `,
     204: 'NO CONTENT: The server successfully processed the request but there is no content to send in the response.',
