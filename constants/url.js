@@ -8,7 +8,7 @@ const absPath = (...params) => {
 }
 
 const INI = {
-
+  toolDef: 'toolDef'
 }
 
 const LOG = {
@@ -22,6 +22,7 @@ const APPSTATE ={
   win: 'win',
   analog: 'analog',
   frames: 'frames'
+
 }
 
 const URL = {
