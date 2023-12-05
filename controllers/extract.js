@@ -20,12 +20,12 @@ const extractSection = async (req, res) => {
         const linesOne = iniOne.split('\n')
 
         const EXTRACT_VALUE = '' // <- section to extract, default will extract all
-        const extracted = extractBySectionObj(linesOne, EXTRACT_VALUE)
+        const configuration = extractBySectionObj(linesOne, EXTRACT_VALUE)
 
         res.status(200).json({
           message: RESPONSE.success[200],
           success: true,
-          extracted
+          configuration
         })
     })
   } else {
@@ -66,6 +66,7 @@ const extractDynamic = async (req, res, next) => {
         res.status(200).json({
           message: RESPONSE.success[200],
           success: true,
+          path: paths.iniPath,
           section
         })
       })
