@@ -76,8 +76,5 @@ const appStateLive = (type, ext) => {
   })
 }
 
-// const appStateFile = appStateLive('appState', 'json')
-
-// console.log(appStateFile, 'APP STATE FILE')
 
 module.exports = appStateLive
