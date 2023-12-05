@@ -3,7 +3,7 @@ const fileName = require('./file-path')
 const { GLOBAL } = require('../config')
 const logLive = require('./latest')
 const appStateLive = require('./appState-latest')
-const { logger, asyncHandler } = require('../middleware')
+const { logger } = require('../middleware')
 
 const USERPROFILE = GLOBAL.userProfile
 
