@@ -1,9 +1,10 @@
 const fs = require('fs')
+const fetch = require('node-fetch')
 const {logger, logLooper} = require('../middleware')
 const { paths, logLive } = require('../utils')
 const { GLOBAL } = require('../config')
 const { RESPONSE } = require('../constants')
-
+const { URL } = require('../constants')
 
 const USERPROFILE = GLOBAL.userProfile
 let totalSum
@@ -250,6 +251,90 @@ const extract = async (req, res ) => {
   }
 }
 
+// TODO: tool operation count
+// @desc extract toolcount to match with the tool itself
+// @path /api/v1/app-state/tool-count
+// @access Public [not implemented]
+const toolCountExtract = async (req, res) => {
+  if (USERPROFILE) {
+    // grab some data from appstate.json
+    let appStatePath
+    let jsonData
+
+    const toolCountFetch = await fetch(URL.app_state.this, {
+      method: 'GET',
+    })
+
+    const appStateState = await toolCountFetch.json()
+
+    // get the tooldef from api/0.0.1/ini/toolDef
+    const toolDefFetch = await fetch(URL.ini.section('toolDef'), {
+      method: 'GET'
+    })
+
+    const toolDefIni = await toolDefFetch.json()
+
+
+    let promisePath
+    await paths.livePath('erp', 'txt').then((result) => {
+      promisePath = result
+      logger.log(promisePath)
+      return promisePath
+    })
+
+    fs.readFile(promisePath, 'utf8', (err, data) => {
+      if (err) {
+        res.status(500).json({ error: err.message })
+        return
+      }
+      try {
+        //hmi version
+        const HMIVersion= appStateState.config.ConfigurationFormat.HLCVersion
+        const HOSTNAME = GLOBAL.host
+
+        // toolcount properties from app state
+        const toolsCount = appStateState.toolsCount
+        let toolIndex = ''
+        let toolOperation = ''
+
+        const toolsCountData = toolsCount.data
+        const toolDef = toolDefIni.section
+
+
+        const toolOperations = []
+
+        Object.entries(toolDef).forEach(([toolDefKey, toolDefValue]) => {
+
+          const toolDefNumber = parseInt(toolDefKey.replace("ToolDef_", ""))
+          const matchingToolCountData = toolsCountData.find(data => data[0] === toolDefNumber);
+
+          if (matchingToolCountData) {
+
+            const [toolNumber, operation] = matchingToolCountData
+
+            const toolOperation = {
+              [toolDefNumber]: {
+                referenceName: toolDefValue.ReferenceName,
+                position: parseInt(toolDefValue.position),
+                operations: parseInt(operation)
+              },
+            };
+            toolOperations.push(toolOperation);
+          }
+        });
+
+        res
+          .status(200)
+          .json({ Machine: HOSTNAME, HMIVersion, toolCount: toolsCount.data, toolOperations })
+      } catch (err) {
+        res
+        .status(500)
+        .json({ error: err.message })
+      }
+    })
+  }
+}
+
 
 // @desc extract framesSet
 // @path /api/v1/app-state/frames
@@ -348,6 +433,7 @@ const appStateController = {
   reader,
   readerErpTXT,
   extract,
+  toolCountExtract,
   coilWatcher,
   latestLog,
   winState_reader,
@@ -355,3 +441,41 @@ const appStateController = {
 }
 
 module.exports = appStateController
+
+
+// const toolDefArray = Object.entries(toolDef).map(([key, value]) => ({ key, value }));
+
+// const toolsCountData = [
+//   [1, 2980],
+//   [2, 7628],
+//   [3, 6595],
+//   [7, 777],
+//   [5, 7459],
+//   [17, 2583],
+//   [4, 526],
+//   [6, 25],
+//   [11, 1],
+//   [12, 1],
+//   [10, 1],
+// ];
+
+// const toolOperations = [];
+
+// toolDefArray.forEach(({ key, value }) => {
+//   const toolDefNumber = parseInt(key.replace("ToolDef_", "")) + 1;
+
+//   const matchingToolCountData = toolsCountData.find(data => data[0] === toolDefNumber);
+
+//   if (matchingToolCountData) {
+//     const [toolNumber, operations] = matchingToolCountData;
+//     const toolOperation = {
+//       [key]: {
+//         referenceName: value.ReferenceName,
+//         operations,
+//       },
+//     };
+//     toolOperations.push(toolOperation);
+//   }
+// });
+
+// console.log(toolOperations);
