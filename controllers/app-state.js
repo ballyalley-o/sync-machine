@@ -251,7 +251,6 @@ const extract = async (req, res ) => {
   }
 }
 
-// TODO: tool operation count
 // @desc extract toolcount to match with the tool itself
 // @path /api/v1/app-state/tool-count
 // @access Public [not implemented]
@@ -311,11 +310,10 @@ const toolCountExtract = async (req, res) => {
           if (matchingToolCountData) {
 
             const [toolNumber, operation] = matchingToolCountData
-
             const toolOperation = {
               [toolDefNumber]: {
                 referenceName: toolDefValue.ReferenceName,
-                position: parseInt(toolDefValue.position),
+                offset: parseInt(toolDefValue.Position),
                 operations: parseInt(operation)
               },
             };
@@ -325,7 +323,7 @@ const toolCountExtract = async (req, res) => {
 
         res
           .status(200)
-          .json({ Machine: HOSTNAME, HMIVersion, toolCount: toolsCount.data, toolOperations })
+          .json({ Machine: HOSTNAME, HMIVersion, toolOperations })
       } catch (err) {
         res
         .status(500)
@@ -441,41 +439,3 @@ const appStateController = {
 }
 
 module.exports = appStateController
-
-
-// const toolDefArray = Object.entries(toolDef).map(([key, value]) => ({ key, value }));
-
-// const toolsCountData = [
-//   [1, 2980],
-//   [2, 7628],
-//   [3, 6595],
-//   [7, 777],
-//   [5, 7459],
-//   [17, 2583],
-//   [4, 526],
-//   [6, 25],
-//   [11, 1],
-//   [12, 1],
-//   [10, 1],
-// ];
-
-// const toolOperations = [];
-
-// toolDefArray.forEach(({ key, value }) => {
-//   const toolDefNumber = parseInt(key.replace("ToolDef_", "")) + 1;
-
-//   const matchingToolCountData = toolsCountData.find(data => data[0] === toolDefNumber);
-
-//   if (matchingToolCountData) {
-//     const [toolNumber, operations] = matchingToolCountData;
-//     const toolOperation = {
-//       [key]: {
-//         referenceName: value.ReferenceName,
-//         operations,
-//       },
-//     };
-//     toolOperations.push(toolOperation);
-//   }
-// });
-
-// console.log(toolOperations);
