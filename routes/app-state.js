@@ -16,6 +16,7 @@ router.get('/win', appStateController.winState_reader)
 router.get('/coil', appStateController.coilWatcher)
 router.get('/analog', analogController.analog_reader)
 router.get('/frames', appStateController.frameSetExtract)
+router.get('/tool-count', appStateController.toolCountExtract)
 
 const appStateRouter = router
 module.exports = appStateRouter
