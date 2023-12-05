@@ -7,6 +7,7 @@ const mainRoute = require('../routes/index.js')
 const logger = require('../middleware/logger.js')
 const {sysLogWs} = require('../middleware')
 const morgan = require('morgan')
+const cors = require('cors')
 const GLOBAL = require('./global.js')
 dotenv.config()
 
@@ -17,6 +18,7 @@ const PORT = GLOBAL.port
  * @param express.json() - express body parser
  * @param express.urlencoded() - express url encoder
  * @param morgan() - morgan logger {short}
+ * @param cors() - cross-origin policy
  * @param registerRoutes() - mount the routes/routing traffic
  * @param serfer - http server for web sockets
  */
@@ -26,6 +28,8 @@ class App {
     this.app.use(express.json())
     this.app.use(express.urlencoded({extended: true}))
     this.app.use(morgan('short'))
+    this.app.use(cors({allowedHeaders: '*'}))
+    this.app.options('*', cors())
     this.registerRoutes()
     this.server = http.createServer(this.app)
     sysLogWs(this.server, PORT)
