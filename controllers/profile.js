@@ -39,35 +39,28 @@ const addProfile = asyncHandler(async(req, res, next) => {
         try {
         const profile = await req.body
 
-        // TODO: write the profile in the ini in a format
         try {
-            const profileLength = await fetch(URL.ini.section('profile'), { method: 'GET' })
-            const profileLengthJson = await profileLength.json()
+            const profileFetch = await fetch(URL.ini.section('profile'), { method: 'GET' })
+            const profileJson = await profileFetch.json()
             const profile = req.body;
             const { size } = profile;
 
-            console.log(profileLengthJson)
+            const profileSection = Object.entries(profileJson.section)
 
-            const profileData = `\n[Profile_${profileLength.length + 1}]\nSize: ${size}\n`;
+            const profileData = `\n[Profile_${profileSection.length}]\nSize=${size}\n`;
 
-            const filePath = paths.testFilesPath
+            const filePath = paths.iniPath
 
             const iniContents = await readFileAsync(filePath, 'utf8')
 
-            // TODO: logically add profile set depending on the last profile
-            const profileSectionIndex =  + iniContents.indexOf('[LLCSocketData]')
-            // const profileSectionIndex = lastProfileIndex !== -1 ? lastProfileIndex + ['Profile_3'] : iniContents.length + `\n`
-
-
-            // this is spliting the [Profile_2] and its Size= 'Size=40.00X140.00'
-            // format should be [Profile_(logically add 1 to the last Profile)] Size=40.00X140.00
+            const profileSectionIndex =  + iniContents.indexOf('\n[LLCSocketData]')
 
             const updateContents = iniContents.slice(0, profileSectionIndex) + profileData + iniContents.slice(profileSectionIndex)
 
             await writeFileAsync(filePath, updateContents);
 
             res.status(200).json({
-                message: RESPONSE.success.profile201,
+                message: RESPONSE.success.profile201(profileSection.length),
                 success: true,
                 profileData
             })
