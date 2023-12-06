@@ -36,43 +36,52 @@ const addProfile = asyncHandler(async(req, res, next) => {
     const readFileAsync = util.promisify(fs.readFile)
     const writeFileAsync = util.promisify(fs.writeFile)
     if(USERPROFILE) {
-        try {
-        const profile = await req.body
 
         try {
+            let isDuplicate = false;
             const profileFetch = await fetch(URL.ini.section('profile'), { method: 'GET' })
             const profileJson = await profileFetch.json()
             const profile = req.body;
-            const { size } = profile;
+            const { flange, web } = profile;
 
             const profileSection = Object.entries(profileJson.section)
 
-            const profileData = `\n[Profile_${profileSection.length}]\nSize=${size}\n`;
+            const profileSet = `${flange}X${web}`
+            const profileData = `\n[Profile_${profileSection.length}]\nSize=${profileSet}\n`;
 
             const filePath = paths.iniPath
 
             const iniContents = await readFileAsync(filePath, 'utf8')
 
-            const profileSectionIndex =  + iniContents.indexOf('\n[LLCSocketData]')
+            const profileSectionIndex = iniContents.indexOf('\n[LLCSocketData]')
 
             const updateContents = iniContents.slice(0, profileSectionIndex) + profileData + iniContents.slice(profileSectionIndex)
 
             await writeFileAsync(filePath, updateContents);
 
-            res.status(200).json({
-                message: RESPONSE.success.profile201(profileSection.length),
-                success: true,
-                profileData
-            })
+            for (const [profileName, profileData] of profileSection) {
+                const existingSize = profileData.Size;
+
+                if (existingSize === profileSet) {
+                    isDuplicate = true;
+                    break;
+                }
+            }
+
+            if (isDuplicate) {
+                throw new Error(`${profileData} already exists`);
+            } else {
+                res.status(200).json({
+                    message: RESPONSE.success.profile201(profileSection.length),
+                    success: true,
+                    profileData
+                });
+            }
         } catch (error) {
             console.error(error.message);
             res.status(400).json({ error: error.message });
         }
 
-        } catch (error) {
-            logger.error(error.message)
-            res.status(400).json({error: error.message})
-        }
     }
 })
 
