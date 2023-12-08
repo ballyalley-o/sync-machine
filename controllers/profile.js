@@ -57,20 +57,20 @@ const addProfile = asyncHandler(async(req, res, next) => {
 
             const updateContents = iniContents.slice(0, profileSectionIndex) + profileData + iniContents.slice(profileSectionIndex)
 
-            await writeFileAsync(filePath, updateContents);
-
             for (const [profileName, profileData] of profileSection) {
                 const existingSize = profileData.Size;
 
                 if (existingSize === profileSet) {
                     isDuplicate = true;
-                    break;
+                    break
                 }
             }
 
             if (isDuplicate) {
                 throw new Error(`${profileData} already exists`);
             } else {
+                await writeFileAsync(filePath, updateContents);
+
                 res.status(200).json({
                     message: RESPONSE.success.profile201(profileSection.length),
                     success: true,
