@@ -117,20 +117,22 @@ const sysLog = async (req, res) => {
   })
 
   if (USERPROFILE) {
-    fs.readFile(paths.testSysLogPath, 'utf8', (err, data) => {
+    fs.readFile(filePath, 'utf8', (err, data) => {
       if (err) {
         res.status(500).json({ error: err.message })
         return
       }
       try {
-        const lines = data.split('\n').reverse()
+        const lines = data.split('\r\n').reverse()
 
-        // // log extract
         const dateLog = sysLooper(lines, 'date')
         const sysLog = sysLooper(lines, 'log')
 
+        const nonEmptyLines = lines.filter(line => line.trim() !== '')
+
+
         // FIXME: Data ouput of this, its not parsed
-        res.status(200).json({ date: dateLog, log: sysLog, data: lines  })
+        res.status(200).json({ date: dateLog, log: sysLog, data: nonEmptyLines })
       } catch (err) {
         res.status(500).json({ error: err.message })
       }
