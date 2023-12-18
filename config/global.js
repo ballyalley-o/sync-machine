@@ -10,6 +10,7 @@ const GLOBAL = {
   userProfile: USER,
   node: NODE,
   host: HOST,
+  env: 'development',
   api: process.env.API_LOCAL,
   apiRoot: process.env.API_ROOT,
   port: process.env.API_PORT,
