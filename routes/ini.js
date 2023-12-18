@@ -1,4 +1,4 @@
-const { iniController, extractController } = require('../controllers')
+const { iniController } = require('../controllers')
 const express = require('express')
 
 const router = express.Router()
@@ -6,11 +6,11 @@ const router = express.Router()
 /**
  * @path - baseUrl/api/0.0.1/ini
  */
-router.get('/', iniController.iniExtract)
-router.get('/sim', iniController.iniSimulation)
-router.get('/compare', iniController.iniCompare)
-router.get('/extract', extractController.extractSection)
-router.get('/:section', extractController.extractDynamic)
+router.get('/', iniController.extractIni)
+router.get('/sim', iniController.simulationIni)
+router.get('/compare', iniController.compareIni)
+router.get('/custom', iniController.customIni)
+router.get('/:section', iniController.dynamicIni)
 
 
 const iniRouter = router

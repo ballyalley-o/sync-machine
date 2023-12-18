@@ -1,15 +1,15 @@
 const fs = require('fs')
-const { logger, iniLooper } = require('../middleware')
-const { paths, compareActions } = require('../utils')
+const { logger, iniLooper, extractBySectionObj } = require('../middleware')
+const { paths, compareActions, normalize } = require('../utils')
 const { GLOBAL } = require('../config')
-const { RESPONSE } = require('../constants')
+const { TARGETS, RESPONSE } = require('../constants')
 
 const USERPROFILE = GLOBAL.userProfile
 
-// @desc extract framesSet
+// @desc ini ile
 // @path /api/0.0.1/ini
 // @access Private - Dev [not implemented]
-const iniExtract = async (req, res) => {
+const extractIni = async (req, res) => {
   if (USERPROFILE) {
 
     fs.readFile(paths.iniPath, 'utf8', (err, data) => {
@@ -43,7 +43,7 @@ let modifiedIni = []
 // @desc prepare ini for Simulation
 // @path /api/0.0.1/ini/sim
 // @access Private - Dev: Admin [not implemented]
-const iniSimulation = async (req, res) => {
+const simulationIni = async (req, res) => {
   if (USERPROFILE) {
      fs.readFile(paths.iniPath, 'utf8', async (err, data) => {
       if (err) {
@@ -141,12 +141,89 @@ const iniSimulation = async (req, res) => {
   }
 }
 
+// @desc extract sections in ini
+// @path /api/0.0.1/ini/custom
+// @access Private - Dev [not implemented]
+const customIni = async (req, res) => {
+  if (USERPROFILE) {
+    fs.readFile(paths.iniPath, 'utf8', (err, iniOne) => {
+      if (err) {
+        logger.error(err)
+        return res.status(500).json({ error: err.message })
+      }
+      // TODO: use a prompt to enter extract value
+        const linesOne = iniOne.split('\n')
+
+        const EXTRACT_VALUE = '' // <- section to extract, default will extract all
+        const configuration = extractBySectionObj(linesOne, EXTRACT_VALUE)
+
+        res.status(200).json({
+          message: RESPONSE.success[200],
+          success: true,
+          configuration
+        })
+    })
+  } else {
+    res.status(401).json({ error: RESPONSE.error[401] })
+  }
+}
+
+// @desc sections in ini dynamically in the path param
+// @path /api/0.0.1/ini/:section
+// @access Private - Dev [not implemented]
+const dynamicIni = async (req, res, next) => {
+  const dynamicSection = await req.params.section
+  let param
+  let slicedNumber
+  let lastUnderscoreIndex = dynamicSection.lastIndexOf('_')
+
+  // handles dynamic concatinationbaltik09 of params with underscores
+  if (lastUnderscoreIndex !== -1) {
+      slicedNumber = dynamicSection.slice(lastUnderscoreIndex + 1)
+      logger.info(slicedNumber)
+    } else {
+      logger.error(RESPONSE.error.underScoreIndex)
+    }
+
+  const normalizedDynamicSection = await normalize.normalizeParam(dynamicSection, TARGETS)
+  const normalized = normalize.switchParam(param, normalizedDynamicSection, slicedNumber)
+
+  if (dynamicSection) {
+    if (USERPROFILE) {
+      fs.readFile(paths.iniPath, 'utf8', (err, data) => {
+        if (err) {
+          logger.error(err)
+          return res.status(500).json({ error: err.message })
+        }
+        const lines = data.split('\n')
+        const section = extractBySectionObj(lines, String(normalized))
+
+        res.status(200).json({
+          message: RESPONSE.success[200],
+          success: true,
+          path: paths.iniPath,
+          section
+        })
+      })
+    } else {
+      logger.error(RESPONSE.error.userProfile404(USERPROFILE))
+      res.status(404).json({
+        error: RESPONSE.error[404]
+      })
+    }
+  } else {
+    res.status(400)
+    throw new Error(RESPONSE.error[400])
+  }
+}
+
+
 // TODO: UNDER DEVELOPMENT ======================================================
 
 // @desc compare ini
 // @path /api/0.0.1/ini/compare
 // @access Private - Dev [not implemented]
-const iniCompare = async (req, res) => {
+const compareIni = async (req, res) => {
     if (USERPROFILE) {
       // using promisified callbacks from fs --not available for nodev9.11.1
       // const iniOne =  fs.readFile(paths.iniPath, 'utf8')
@@ -185,5 +262,5 @@ const iniCompare = async (req, res) => {
 }
 
 
-const iniController = { iniExtract, iniSimulation, iniCompare }
+const iniController = { extractIni, simulationIni, compareIni, customIni, dynamicIni }
 module.exports = iniController

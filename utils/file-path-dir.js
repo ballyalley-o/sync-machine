@@ -1,12 +1,13 @@
 const path = require('path')
 const fileName = require('./file-path')
 const { GLOBAL } = require('../config')
-const logLive = require('./latest')
+const latestLogFile = require('./latest-log-file')
 const appStateLive = require('./appState-latest')
-const { logger, asyncHandler } = require('../middleware')
+const { logger } = require('../middleware')
 
 const USERPROFILE = GLOBAL.userProfile
 
+// test files
 const testFilesPath = path.join(__dirname, '..', 'data', 'Howick.ini')
 const testSysLogPath = path.join(__dirname, '..', 'data', 'SYSTEM_log_2023-12.txt')
 
@@ -51,9 +52,9 @@ const pathDir = (live) => path.join(
   live
 )
 
-async function livePath(logPath, ext) {
+async function latestLogPath(logPath, ext) {
     try {
-        const live = await logLive(logPath, ext)
+        const live = await latestLogFile(logPath, ext)
 
         const PathDir = pathDir(live)
          return PathDir
@@ -82,13 +83,13 @@ async function rootPath(fileName, ext) {
 
 
 const paths = {
-  testFilesPath,
   dynamicRootPath,
   dynamicPath_txt,
   erpPath_txt,
-  livePath,
+  latestLogPath,
   rootPath,
   iniPath,
-  testSysLogPath
+  testFilesPath,
+  testSysLogPath,
 }
 module.exports = paths

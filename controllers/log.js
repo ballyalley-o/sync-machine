@@ -8,38 +8,41 @@ const { URL } = require('../constants')
 
 const USERPROFILE = GLOBAL.userProfile
 
-const urlPath = URL.app_state.extract
-
 let coilSpecs
 
-// @desc full Coil log
+// @desc  Coil log file
 // @path /api/v1/log/coil
 // @access Public [not implemented]
 const coilLog = async (req, res) => {
-  const filePath = await paths.livePath('coil', 'txt').then((result) => {
-    promisePath = result
-    logger.log(promisePath)
-    return promisePath
-  })
+  let promisePath
 
   if (USERPROFILE) {
-    fs.readFile(filePath, 'utf8', (err, data) => {
-      if (err) {
-        res.status(500).json({ error: err.message })
-        return
-      }
-      try {
-        const lines = data.split('\n')
-
-        for (const line of lines) {
-          logger.log(line)
-        }
-
-        res.status(200).json(lines)
-      } catch (err) {
-        res.status(500).json({ error: err.message })
-      }
+    await paths.latestLogPath('coil', 'txt').then((result) => {
+      promisePath = result
+      logger.log(promisePath)
+      return promisePath
     })
+
+     fs.readFile(promisePath, 'utf8', (err, data) => {
+       if (err) {
+         res.status(500).json({ error: err.message })
+         return
+       }
+       try {
+          const lines = data.split('\n')
+
+          res.status(200).json(lines)
+       } catch (err) {
+         logger.error(RESPONSE.error.parseErr(err.message))
+
+         res
+         .status(500)
+         .json({ error: err.message })
+       }
+     })
+  } else {
+    logger.error(RESPONSE.error.userProfile404(USERPROFILE))
+    res.status(404).json({error: error.message})
   }
 }
 
@@ -47,16 +50,16 @@ const coilLog = async (req, res) => {
 // @path /api/v1/log/parsed-coil-log
 // @access Public [not implemented]
 const parsedCoilLog = async (req, res) => {
-  const filePath = await paths.livePath('coil', 'txt').then((result) => {
+  const filePath = await paths.latestLogPath('coil', 'txt').then((result) => {
     promisePath = result
     logger.log(promisePath)
     return promisePath
   })
 
-  const coilState = await fetch(URL.app_state.extract, {
+  const coilLog = await fetch(URL.app_state.custom, {
     method: 'GET',
   })
-    const appStateFetch = await coilState.json()
+    const appStateFetch = await coilLog.json()
 
   if (USERPROFILE) {
     fs.readFile(filePath, 'utf8', (err, data) => {
@@ -110,37 +113,125 @@ const parsedCoilLog = async (req, res) => {
 // @path /api/v1/log/sys
 // @access Public [not implemented]
 const sysLog = async (req, res) => {
-  const filePath = await paths.livePath('sys', 'txt').then((result) => {
+  const filePath = await paths.latestLogPath('sys', 'txt').then((result) => {
     promisePath = result
     logger.log(promisePath)
     return promisePath
   })
 
   if (USERPROFILE) {
-    fs.readFile(paths.testSysLogPath, 'utf8', (err, data) => {
+    fs.readFile(filePath, 'utf8', (err, data) => {
       if (err) {
         res.status(500).json({ error: err.message })
         return
       }
       try {
-        const lines = data.split('\n').reverse()
+        const lines = data.split('\r\n').reverse()
 
-        // // log extract
         const dateLog = sysLooper(lines, 'date')
         const sysLog = sysLooper(lines, 'log')
 
+        const nonEmptyLines = lines.filter(line => line.trim() !== '')
+
+
         // FIXME: Data ouput of this, its not parsed
-        res.status(200).json({ date: dateLog, log: sysLog, data: lines  })
+        res.status(200).json({ date: dateLog, log: sysLog, data: nonEmptyLines })
       } catch (err) {
+        logger.error(RESPONSE.error.parseErr(err.message))
         res.status(500).json({ error: err.message })
       }
     })
   }
 }
 
+// @desc erp log file
+// @path /api/v1/log/erp
+// @access Public [not implemented]
+const erpLog = async (req, res) => {
+  try {
+    if (USERPROFILE) {
+       let promisePath;
+
+      const live = await paths
+        .latestLogPath('erp', 'txt')
+        .then((result) => {
+         promisePath = result
+         return promisePath
+        })
+       console.log(promisePath, 'promises')
+
+       fs.readFile(promisePath, 'utf8', (err, data) => {
+         if (err) {
+           res.status(500).json({ error: err.message })
+           return
+         }
+
+         try {
+           const lines = data.split('\n')
+           logger.log(lines)
+           const components = lines.length
+
+           res.status(200).json(lines)
+         } catch (err) {
+           logger.error(RESPONSE.error.parseErr(err.message))
+           res
+           .status(500)
+           .json({ error: err.message })
+         }
+       })
+
+    }
+  } catch (err) {
+     res.status(500).json({ error: err.message })
+  }
+ }
+
+ // @desc production log file
+// @path /api/v1/log/production
+// @access Public [not implemented]
+const productionLog = async (req, res) => {
+  try {
+    if (USERPROFILE) {
+
+       let promisePath;
+
+      const live = await paths
+        .latestLogPath('prod', 'txt')
+        .then((result) => {
+         promisePath = result
+         return promisePath
+        })
+
+       fs.readFile(promisePath, 'utf8', (err, data) => {
+         if (err) {
+           res.status(500).json({ error: err.message })
+           return
+         }
+
+         try {
+           const lines = data.split('\n')
+           logger.log(lines)
+           const components = lines.length
+
+
+           res.status(200).json(lines)
+         } catch (err) {
+           logger.error(RESPONSE.error.parseErr(err.message))
+           res
+           .status(500)
+           .json({ error: err.message })
+         }
+       })
+
+    }
+  } catch (err) {
+     res.status(500).json({ error: err.message })
+  }
+ }
+
   // const sysLogWs = async (req, res) => {
   //   if (USERPROFILE) {
-  //     const filePath = await paths.livePath('sys', 'txt')
+  //     const filePath = await paths.latestLogPath('sys', 'txt')
   //     logger.log(filePath)
 
   //     // sets the appropriate headers for SSE
@@ -182,7 +273,7 @@ const sysLog = async (req, res) => {
     const wws = new WebSocket.Server({ server })
 
     wws.on('connection', (ws) => {
-      const filePath = paths.livePath('sys', 'txt').then((result) => {
+      const filePath = paths.latestLogPath('sys', 'txt').then((result) => {
         promisePath = result
         logger.log(promisePath)
         return promisePath
@@ -218,5 +309,5 @@ const sysLog = async (req, res) => {
   }
 
 
-const logController = { coilLog, parsedCoilLog, sysLog }
+const logController = { coilLog, parsedCoilLog, sysLog, erpLog, productionLog }
 module.exports = logController

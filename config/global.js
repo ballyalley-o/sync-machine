@@ -10,6 +10,7 @@ const GLOBAL = {
   userProfile: USER,
   node: NODE,
   host: HOST,
+  env: 'development',
   api: process.env.API_LOCAL,
   apiRoot: process.env.API_ROOT,
   port: process.env.API_PORT,
@@ -21,6 +22,10 @@ const GLOBAL = {
     DATE: dateNow.toLocaleDateString(),
     custom: (city) => moment().tz(COUNTRY[city]).format(),
   },
+  // db
+  db_uri: process.env.DB_URI,
+  db_host: process.env.DB_HOST,
+  db_name: (db) => db.connection.name,
 }
 
 

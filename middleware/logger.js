@@ -27,6 +27,19 @@ const logger = {
         console.log('SERVER_STATUS: '.bgYellow, serv.SERVER_STATUS.yellow)
       }
 
+  },
+  db: (host, dbName, isConnected) => {
+    const DB_LOG =
+      {
+        HOST: host,
+        DATABASE: dbName,
+        STATUS: isConnected ? 'CONNECTED' : 'NO CONNECTION'
+      }
+
+      console.log('HOST: ', DB_LOG.HOST.yellow)
+      console.log('DATABASE: ', DB_LOG.DATABASE.yellow)
+      // isConnected ? console.log('STATUS: ', DB_LOG.STATUS.green) :  console.log('STATUS: ', DB_LOG.STATUS.red)
+
   }
 }
 

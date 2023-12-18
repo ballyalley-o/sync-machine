@@ -7,7 +7,7 @@ const sysLogWs = (server, port) => {
   const wws = new WebSocket.Server({ server })
 
   wws.on('connection', async (ws) => {
-    const filePath = paths.livePath('sys', 'txt').then((result) => {
+    const filePath = paths.latestLogPath('sys', 'txt').then((result) => {
       promisePath = result
       logger.log(promisePath)
       return promisePath
