@@ -1,12 +1,18 @@
 module.exports = {
-  extractBySection: require('./extract'),
-  extractBySectionObj: require('./extract-obj'),
+  // handlers
+  notFound: require('./not-found'),
+  asyncHandler: require('./async-handler'),
+  errorHandler: require('./error-handler'),
+  // extractors
+  extractBySection: require('./extractors/extract'),
+  extractBySectionObj: require('./extractors/extract-obj'),
+  // loopers
   logger: require('./logger'),
   logLooper: require('./loopers/log'),
   coilLooper: require('./loopers/coil'),
   iniLooper: require('./loopers/ini'),
-  asyncHandler: require('./async-handler'),
   analogLooper: require('./loopers/analog'),
+  // websocket implementation
   sysLooper: require('./loopers/system'),
   sysLogWs: require('./system-log-ws'),
 }
