@@ -8,8 +8,6 @@ const { URL } = require('../constants')
 
 const USERPROFILE = GLOBAL.userProfile
 
-const urlPath = URL.app_state.extract
-
 let coilSpecs
 
 // @desc  Coil log file
