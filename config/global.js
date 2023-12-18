@@ -22,6 +22,10 @@ const GLOBAL = {
     DATE: dateNow.toLocaleDateString(),
     custom: (city) => moment().tz(COUNTRY[city]).format(),
   },
+  // db
+  db_uri: process.env.DB_URI,
+  db_host: process.env.DB_HOST,
+  db_name: (db) => db.connection.name,
 }
 
 
