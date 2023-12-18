@@ -11,11 +11,11 @@ let totalSum
 let coilSpecs
 
 
-// @desc Reader for Production log
+// @desc Extract appState file
 // @file appState.json
 // @path /api/v1/app-state
 // @access Public [not implemented]
-const reader = async (req, res) => {
+const extractAppState = async (req, res) => {
   if (USERPROFILE) {
      fs.readFile(paths.dynamicRootPath('appState.json'), 'utf8', (err, data) => {
        if (err) {
@@ -45,7 +45,7 @@ const reader = async (req, res) => {
 // @file appWindowState.json
 // @path /api/v1/app-state/win
 // @access Public [not implemented]
-const winState_reader = async (req, res) => {
+const winAppState = async (req, res) => {
   if (USERPROFILE) {
     fs.readFile(
       paths.dynamicRootPath('appWindowState.json'),
@@ -73,67 +73,10 @@ const winState_reader = async (req, res) => {
   }
 }
 
-// @desc Reader for ERP log
-// @path /api/v1/app-state/erp
-// @access Public [not implemented]
-const readerErpTXT = async (req, res) => {
-
-  if (USERPROFILE) {
-     fs.readFile(paths.erpPath_txt, 'utf8', (err, data) => {
-       if (err) {
-         res.status(500).json({ error: err })
-         return
-       }
-       try {
-         const lines = data.split('\n')
-
-         for (const line of lines) {
-           logger.log(line)
-         }
-
-         res.status(200).json(lines)
-       } catch (err) {
-
-         logger.error('Error parsing JSON:', err)
-
-         res
-         .status(500)
-         .json({ error: err.message })
-       }
-     })
-  }
-}
-
-// @desc --
-// @path /api/v1/app-state/latest
-// @access Public [not implemented]
-const latestLog = async (req, res) => {
- try {
-   if (USERPROFILE) {
-      let promisePath;
-     const live = await paths
-       .livePath('erp', 'txt')
-       .then((result) => {
-        promisePath = result
-        return promisePath
-       })
-      console.log(promisePath, 'promises')
-     const data = await fs.promises.readFile(promisePath, 'utf8')
-     const lines = data.split('\n')
-     logger.log(lines)
-     const components = lines.length
-     console.log(components)
-   }
- } catch (err) {
-    res.status(500).json({ error: err.message })
- }
-}
-
-
 // @desc Totals and data extactor
 // @path /api/v1/app-state/extract
 // @access Public [not implemented]
-const extract = async (req, res ) => {
+const customAppState = async (req, res ) => {
   if (USERPROFILE) {
     // grab some data from appstate.json
     let appStatePath
@@ -251,20 +194,55 @@ const extract = async (req, res ) => {
   }
 }
 
+// @desc analog dialog extract
+// @file appState.json
+// @path /api/v1/app-state/analog
+// @access Public [not implemented]
+const analogAppState = async (req, res) => {
+  if (USERPROFILE) {
+    fs.readFile(paths.dynamicRootPath('appState.json'), 'utf8', (err, data) => {
+      if (err) {
+        res.status(500).json({ error: err })
+        return
+      }
+      try {
+        const jsonData = JSON.parse(data)
+
+        const hydraulicPressure = jsonData.config.Analogue_Display_0
+        const airPressure = jsonData.config.Analogue_Display_1
+        const decoilerArm = jsonData.config.Analogue_Display_2
+        const oilTemp = jsonData.config.Analogue_Display_3
+        const driveCurrent = jsonData.config.Analogue_Display_4
+        const driveFrequency = jsonData.config.Analogue_Display_5
+
+        const analogDisplay = {
+            Hydraulic_Pressure: hydraulicPressure,
+            Air_Pressure: airPressure,
+            Decoiler_Arm: decoilerArm,
+            Oil_Temp: oilTemp,
+            Drive_Current: driveCurrent,
+            Drive_Frequency: driveFrequency
+        }
+
+        res.status(200).json(analogDisplay)
+      } catch (parseError) {
+        logger.error('Error parsing JSON:', parseError)
+        res.status(500).json({ error: parseError.message })
+      }
+    })
+  }
+}
+
 // @desc extract toolcount to match with the tool itself
 // @path /api/v1/app-state/tool-count
 // @access Public [not implemented]
-const toolCountExtract = async (req, res) => {
+const toolCountAppState = async (req, res) => {
   if (USERPROFILE) {
-    // grab some data from appstate.json
-    let appStatePath
-    let jsonData
 
     const toolCountFetch = await fetch(URL.app_state.this, {
       method: 'GET',
     })
-
-    const appStateState = await toolCountFetch.json()
+    const toolCountState = await toolCountFetch.json()
 
     // get the tooldef from api/0.0.1/ini/toolDef
     const toolDefFetch = await fetch(URL.ini.section('toolDef'), {
@@ -288,11 +266,11 @@ const toolCountExtract = async (req, res) => {
       }
       try {
         //hmi version
-        const HMIVersion= appStateState.config.ConfigurationFormat.HLCVersion
+        const HMIVersion= toolCountState.config.ConfigurationFormat.HLCVersion
         const HOSTNAME = GLOBAL.host
 
         // toolcount properties from app state
-        const toolsCount = appStateState.toolsCount
+        const toolsCount = toolCountState.toolsCount
         let toolIndex = ''
         let toolOperation = ''
 
@@ -337,7 +315,7 @@ const toolCountExtract = async (req, res) => {
 // @desc extract framesSet
 // @path /api/v1/app-state/frames
 // @access Public [not implemented]
-const frameSetExtract = async (req, res) => {
+const frameSetAppState = async (req, res) => {
   if (USERPROFILE) {
     let appStatePath
     let appData
@@ -380,62 +358,13 @@ const frameSetExtract = async (req, res) => {
   }
 }
 
-// @desc R&D for watching coil log
-// @path /api/v1/app-state/coil
-// @access Public [not implemented]
-const coilWatcher = async (req, res) => {
-
-  let promisePath
-
-  if (USERPROFILE) {
-    await paths.livePath('coil', 'txt').then((result) => {
-      promisePath = result
-      logger.log(promisePath)
-      return promisePath
-    })
-
-    try {
-      // const watchErp = chokidar.watch(filePath)
-      // Start the watcher
-     fs.readFile(promisePath, 'utf8', (err, data) => {
-       if (err) {
-         res.status(500).json({ error: err.message })
-         return
-       }
-       try {
-          const lines = data.split('\n')
-
-          res.status(200).json(lines)
-       } catch (err) {
-         logger.error(RESPONSE.error.parseErr(err.message))
-
-         res
-         .status(500)
-         .json({ error: err.message })
-       }
-     })
-    } catch (err) {
-      logger.error(err)
-
-      res
-      .status(500)
-      .json({ error: err.message })
-    }
-  } else {
-    logger.error(RESPONSE.error.userProfile404(USERPROFILE))
-    res.status(404).json({error: error.message})
-  }
-}
-
 const appStateController = {
-  reader,
-  readerErpTXT,
-  extract,
-  toolCountExtract,
-  coilWatcher,
-  latestLog,
-  winState_reader,
-  frameSetExtract
+  extractAppState,
+  customAppState,
+  toolCountAppState,
+  winAppState,
+  analogAppState,
+  frameSetAppState
 }
 
 module.exports = appStateController
