@@ -1,7 +1,7 @@
 const fs = require('fs')
 const fetch = require('node-fetch')
 const {logger, logLooper} = require('../middleware')
-const { paths, logLive } = require('../utils')
+const { paths, latestLogFile } = require('../utils')
 const { GLOBAL } = require('../config')
 const { RESPONSE } = require('../constants')
 const { URL } = require('../constants')
@@ -110,7 +110,7 @@ const customAppState = async (req, res ) => {
      * grab the latest log
      */
     let promisePath
-    await paths.livePath('erp', 'txt').then((result) => {
+    await paths.latestLogPath('erp', 'txt').then((result) => {
       promisePath = result
       logger.log(promisePath)
       return promisePath
@@ -253,7 +253,7 @@ const toolCountAppState = async (req, res) => {
 
 
     let promisePath
-    await paths.livePath('erp', 'txt').then((result) => {
+    await paths.latestLogPath('erp', 'txt').then((result) => {
       promisePath = result
       logger.log(promisePath)
       return promisePath
