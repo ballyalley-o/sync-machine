@@ -108,11 +108,6 @@ function compareArrByProperty(prevArr, modArr) {
     }
   }
 
-  // console.log(keyValueArray, 'keyValueArray')
-  // console.log(profileArray, 'profileArray')
-  // console.log(paramArray, 'paramArray')
-  // console.log(prevArr, 'prevArr')
-
   const prevPropertyValues = prevArr.map((item) => {
     const [key, value] = item.split('=')
     if (key && value) {
@@ -134,14 +129,6 @@ function compareArrByProperty(prevArr, modArr) {
       changes.push(`${prevValue}: '${prevValue}' -> '${modPropsArray[index]}'`)
     }
   })
-
-  // for (let i = prevPropsArray.length; i < modPropsArray.length; i++) {
-  //   changes.push(`Added ${propertyName}: '${modPropsArray[i]}'`)
-  // }
-
-  // for (let i = modPropsArray.length; i < prevPropsArray.length; i++) {
-  //   changes.push(`Removed ${propertyName}: '${prevPropsArray[i]}'`)
-  // }
 
   return properties
 }
