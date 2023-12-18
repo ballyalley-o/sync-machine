@@ -1,5 +1,5 @@
 const RESPONSE = {
-  iniSimulation: 'Ready for Simulation.',
+  iniSimulation: 'Ready for Simulation',
   noChanges: 'No changes found',
   success: {
     200: 'OK: Request fetched',
