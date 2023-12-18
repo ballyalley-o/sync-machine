@@ -6,6 +6,7 @@ const http = require('http')
 const mainRoute = require('../routes/index.js')
 const logger = require('../middleware/logger.js')
 const {sysLogWs, errorHandler, notFound} = require('../middleware')
+const connectDb = require('./db.js')
 const morgan = require('morgan')
 const cors = require('cors')
 const GLOBAL = require('./global.js')
@@ -39,6 +40,15 @@ class App {
 
   registerRoutes() {
     mainRoute(this.app)
+  }
+
+  async connectDb() {
+    try {
+      await connectDb(true)
+    } catch (error) {
+      connectDb(false)
+      logger.error(error.message)
+    }
   }
 
   start() {
