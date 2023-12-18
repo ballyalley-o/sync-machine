@@ -10,8 +10,7 @@ const router = express.Router()
 router.get('/coil', logController.coilLog)
 router.get('/parsed-coil-log', logController.parsedCoilLog)
 router.get('/sys', logController.sysLog)
-// router.get('/sys', logController.sysLogWs)
-// router.get('/erp', readerController.watcher)
+router.get('/erp', logController.erpLog)
 
 const logRouter = router
 module.exports = logRouter
