@@ -1,19 +1,20 @@
-const {Schema, model } = require('mongoose')
+const { Schema, model } = require('mongoose')
 
-
-const HourlyRateSchema = new Schema({
+const HourlyRateSchema = new Schema(
+  {
     dateTime: {
-        type: String,
-        required: true
+      type: String,
+      required: true,
     },
     produced: {
-        type: String,
+      type: String,
     },
     waste: {
-        type: String,
+      type: String,
     },
-}, { collection: HourlyRate})
-
+  },
+  { collection: 'HourlyRate' }
+)
 
 const HourlyRate = model('HourlyRate', HourlyRateSchema)
 module.exports = HourlyRate
