@@ -12,6 +12,7 @@ module.exports = {
   coilLooper: require('./loopers/coil'),
   iniLooper: require('./loopers/ini'),
   analogLooper: require('./loopers/analog'),
+  productionLooper: require('./loopers/production'),
   // websocket implementation
   sysLooper: require('./loopers/system'),
   sysLogWs: require('./system-log-ws'),
