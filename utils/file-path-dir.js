@@ -9,11 +9,15 @@ const USERPROFILE = GLOBAL.userProfile
 
 // test files
 const testFilesPath = path.join(__dirname, '..', 'data', 'Howick.ini')
-const testSysLogPath = path.join(__dirname, '..', 'data', 'SYSTEM_log_2023-12.txt')
+const testSysLogPath = path.join(
+  __dirname,
+  '..',
+  'data',
+  'SYSTEM_log_2023-12.txt'
+)
 
 const dynamicRootPath = (fileName) =>
   path.join(USERPROFILE, 'AppData', 'Roaming', 'HowickHLCv3', fileName)
-
 
 const iniPath = path.join(
   USERPROFILE,
@@ -22,17 +26,6 @@ const iniPath = path.join(
   'HowickHLCv3',
   'Howick.ini'
 )
-
-
-const dynamicPath_txt = path.join(
-  USERPROFILE,
-  'AppData',
-  'Roaming',
-  'HowickHLCv3',
-  'logs',
-  'OPERATIONS_log_2023-10.txt'
-)
-
 
 const erpPath_txt = path.join(
   USERPROFILE,
@@ -43,48 +36,40 @@ const erpPath_txt = path.join(
   fileName
 )
 
-const pathDir = (live) => path.join(
-  USERPROFILE,
-  'AppData',
-  'Roaming',
-  'HowickHLCv3',
-  'logs',
-  live
-)
+const pathDir = (live) =>
+  path.join(USERPROFILE, 'AppData', 'Roaming', 'HowickHLCv3', 'logs', live)
 
 async function latestLogPath(logPath, ext) {
-    try {
-        const live = await latestLogFile(logPath, ext)
+  try {
+    const live = await latestLogFile(logPath, ext)
 
-        const PathDir = pathDir(live)
-         return PathDir
-    } catch (error) {
-        logger.error(error)
-        return null
-    }
+    const PathDir = pathDir(live)
+    return PathDir
+  } catch (error) {
+    logger.error(error)
+    return null
+  }
 }
 
 async function rootPath(fileName, ext) {
-    try {
-        const file = await appStateLive(fileName, ext)
-        let appState
+  try {
+    const file = await appStateLive(fileName, ext)
+    let appState
 
-        if (file.length === 1) {
-          appState = file.pop()
-        }
-
-        const PathDir = dynamicRootPath(appState)
-        return PathDir
-    } catch (error) {
-        logger.error(error.message)
-        return null
+    if (file.length === 1) {
+      appState = file.pop()
     }
-}
 
+    const PathDir = dynamicRootPath(appState)
+    return PathDir
+  } catch (error) {
+    logger.error(error.message)
+    return null
+  }
+}
 
 const paths = {
   dynamicRootPath,
-  dynamicPath_txt,
   erpPath_txt,
   latestLogPath,
   rootPath,
