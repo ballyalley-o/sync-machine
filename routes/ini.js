@@ -12,6 +12,5 @@ router.get('/compare', iniController.compareIni)
 router.get('/custom', iniController.customIni)
 router.get('/:section', iniController.dynamicIni)
 
-
 const iniRouter = router
 module.exports = iniRouter
