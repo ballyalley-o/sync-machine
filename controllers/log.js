@@ -1,10 +1,15 @@
 const fs = require('fs')
 const fetch = require('node-fetch')
 const WebSocket = require('ws')
-const { logger, coilLooper, sysLooper } = require('../middleware')
+const {
+  logger,
+  coilLooper,
+  sysLooper,
+  productionLooper,
+} = require('../middleware')
 const { paths, nuller } = require('../utils')
 const { GLOBAL } = require('../config')
-const { URL } = require('../constants')
+const { URL, RESPONSE } = require('../constants')
 // models
 const { Production } = require('../models')
 
@@ -206,12 +211,32 @@ const productionLog = async (req, res) => {
           const lines = data.split('\n')
           logger.log(lines)
           const components = lines.length
+          const date = productionLooper(lines, 'date')
+          const frameSet = productionLooper(lines, 'frameSet')
+          const componentName = productionLooper(lines, 'componentName')
+          const componentLength = productionLooper(lines, 'componentLength')
+          const flange = productionLooper(lines, 'flange')
+          const web = productionLooper(lines, 'web')
+          const unit = productionLooper(lines, 'unit')
+          const modClassifier = productionLooper(lines, 'modClassifier')
 
-          for (const line of Lines) {
-            console.log(line, 'line')
+          const production = {
+            date,
+            frameSet,
+            componentName,
+            componentLength,
+            flange,
+            web,
+            unit,
+            modClassifier,
           }
 
-          const production = Production
+          // for (const line of lines) {
+
+          // }
+
+          console.table(Object.entries(production))
+          // const production = Production
 
           res.status(200).json(lines)
         } catch (err) {
