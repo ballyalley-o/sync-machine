@@ -1,33 +1,36 @@
-const {Schema, model} = require('mongoose')
+const { Schema, model } = require('mongoose')
 
-TODO:// coil log schema
-const CoilSchema = new Schema({
-    dateTime : {
-        type: String,
-        required: true
+// TODO: Coil log schema
+
+const CoilSchema = new Schema(
+  {
+    dateTime: {
+      type: String,
+      required: true,
     },
     coilBatchName: {
-        type:String
+      type: String,
     },
     coilLength: {
-        type:String
+      type: String,
     },
     coilWidth: {
-        type:String
+      type: String,
     },
     coilWeight: {
-        type:String
+      type: String,
     },
     coilDensity: {
-        type:String
+      type: String,
     },
     operator: {
-        type:String
-    }
-},{
-    collection: 'Coil'
-})
-
+      type: String,
+    },
+  },
+  {
+    collection: 'Coil',
+  }
+)
 
 const Coil = model('Coil', CoilSchema)
 module.exports = Coil

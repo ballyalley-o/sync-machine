@@ -1,40 +1,44 @@
-const {Schema, model} = require('mongoose')
+const mongoose = require('mongoose')
+const { Schema, model } = require('mongoose')
 
-TODO:// production log schema
-const ProductionSchema = new Schema({
-    dateTime : {
-        type: String,
-        required: true
+// production log schema
+const ProductionSchema = new Schema(
+  {
+    dateTime: {
+      type: String,
+      required: true,
     },
     frameSet: {
-        type: String,
+      type: String,
     },
     componentName: {
-        type: String,
+      type: String,
     },
     componentLength: {
-        type: String,
+      type: String,
     },
     flangeHeight: {
-        type: String,
+      type: String,
     },
     webWidth: {
-        type: String,
+      type: String,
     },
     flangeHeight: {
-        type: String,
+      type: String,
     },
     unit: {
-        type: String,
+      type: String,
     },
     isModified: {
-        type:String,
-        // TODO: if UnModified have the value as false
-    }
-}, {timestamps: true})
+      type: String,
+      // TODO: if UnModified have the value as false
+    },
+  },
+  {
+    timestamps: true,
+    collection: 'Production',
+  }
+)
 
-
-
-
-const Production = model('Production', ProductionSchema)
+const Production = mongoose.model('Production', ProductionSchema)
 module.exports = Production
