@@ -231,11 +231,9 @@ const productionLog = async (req, res) => {
             modClassifier,
           }
 
-          // for (const line of lines) {
-
-          // }
-
           console.table(Object.entries(production))
+
+          // TODO: implement the Production model to mongoose
           // const production = Production
 
           res.status(200).json(lines)
