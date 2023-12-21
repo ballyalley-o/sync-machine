@@ -1,6 +1,6 @@
 // const logger = require('./logger')
 
-const e = require("express")
+const e = require('express')
 
 const coilLooper = (lines, index) => {
   let el
@@ -45,19 +45,13 @@ const coilLooper = (lines, index) => {
       let parsedEl
 
       // checking if the elements are string then just return it
-      if (el === 1 || el === 9) {
-
+      if (typeof el === 'string') {
         return lineArr[el]
       } else {
         // for num types
         parsedEl = parseFloat(lineArr[el])
         return parsedEl
       }
-      // for calculating total
-      // console.log(lineArr[4], 'COIL PARSED EL')
-      // if (!isNaN(parsedEl)) {
-      //   total += parsedEl
-      // }
     }
   }
 }
