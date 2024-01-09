@@ -54,11 +54,16 @@ const latestLog = (type, ext, callback) => {
     }
 
     const latestLog = logFiles.reduce((latest, current) => {
-      if (type === 'operations' || type === 'coil' || type === 'sys') {
+      if (
+        type === 'operations' ||
+        type === 'coil' ||
+        type === 'sys' ||
+        type === 'prod'
+      ) {
         const currentDate = new Date(current.match(/\d{4}-\d{2}/)[0])
         const latestDate = new Date(latest.match(/\d{4}-\d{2}/)[0])
         return currentDate > latestDate ? current : latest
-      } else if (type === 'erp' || type === 'prod') {
+      } else if (type === 'erp') {
         const currentDate = new Date(current.match(/\d{4}-\d{2}-\d{2}/))
         const latestDate = new Date(latest.match(/\d{4}-\d{2}-\d{2}/))
 
