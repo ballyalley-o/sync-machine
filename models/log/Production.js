@@ -6,7 +6,6 @@ const ProductionSchema = new Schema(
   {
     dateTime: {
       type: String,
-      required: true,
     },
     frameSet: {
       type: String,
@@ -17,19 +16,18 @@ const ProductionSchema = new Schema(
     componentLength: {
       type: String,
     },
-    flangeHeight: {
+    flange: {
       type: String,
     },
-    webWidth: {
-      type: String,
-    },
-    flangeHeight: {
+    web: {
       type: String,
     },
     unit: {
       type: String,
     },
-    isModified: {
+    // was thinking to name this field to isModified but might be confusing since it is conventionally used for booleans
+    // FIXME: change name of this field
+    modClassifier: {
       type: String,
       // TODO: if UnModified have the value as false
     },
