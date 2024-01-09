@@ -12,7 +12,6 @@ const ERPSchema = new Schema(
     coilBatchName: {
       type: String,
     },
-    // coil/componentWidth
     coilWidth: {
       type: String,
     },
