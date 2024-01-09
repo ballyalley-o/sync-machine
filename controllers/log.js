@@ -7,9 +7,10 @@ const {
   sysLooper,
   productionLooper,
 } = require('../middleware')
+const { caseIndices } = require('../middleware/loopers/production')
 const { paths, nuller } = require('../utils')
 const { GLOBAL } = require('../config')
-const { URL, RESPONSE } = require('../constants')
+const { URL, RESPONSE, LOG } = require('../constants')
 // models
 const { Production } = require('../models')
 
@@ -159,11 +160,10 @@ const erpLog = async (req, res) => {
     if (USERPROFILE) {
       let promisePath
 
-      const live = await paths.latestLogPath('erp', 'txt').then((result) => {
+      await paths.latestLogPath('erp', 'txt').then((result) => {
         promisePath = result
         return promisePath
       })
-      console.log(live, 'promises')
 
       fs.readFile(promisePath, 'utf8', (err, data) => {
         if (err) {
@@ -196,12 +196,12 @@ const productionLog = async (req, res) => {
     if (USERPROFILE) {
       let promisePath
 
-      const live = await paths.latestLogPath('prod', 'txt').then((result) => {
+      await paths.latestLogPath('prod', 'txt').then((result) => {
         promisePath = result
         return promisePath
       })
 
-      fs.readFile(promisePath, 'utf8', (err, data) => {
+      fs.readFile(promisePath, 'utf8', async (err, data) => {
         if (err) {
           res.status(500).json({ error: err.message })
           return
@@ -209,34 +209,28 @@ const productionLog = async (req, res) => {
 
         try {
           const lines = data.split('\n')
-          logger.log(lines)
           const components = lines.length
-          const date = productionLooper(lines, 'date')
-          const frameSet = productionLooper(lines, 'frameSet')
-          const componentName = productionLooper(lines, 'componentName')
-          const componentLength = productionLooper(lines, 'componentLength')
-          const flange = productionLooper(lines, 'flange')
-          const web = productionLooper(lines, 'web')
-          const unit = productionLooper(lines, 'unit')
-          const modClassifier = productionLooper(lines, 'modClassifier')
 
-          const production = {
-            date,
-            frameSet,
-            componentName,
-            componentLength,
-            flange,
-            web,
-            unit,
-            modClassifier,
+          let result = {}
+
+          for (const key in LOG.production) {
+            result[key] = Object.values(productionLooper(lines, key))[0]
           }
 
-          console.table(Object.entries(production))
+          const productionLogExists = await Production.findOne({
+            dateTime: result.dateTime,
+          })
 
-          // TODO: implement the Production model to mongoose
-          // const production = Production
+          if (productionLogExists) {
+            logger.log(RESPONSE.exists('production log'))
+            res.status(200).json({ productionLog: result })
+            return
+          } else {
+            const newProductionLog = await Production.create(result)
+            logger.log(RESPONSE.dbSaved('production log'))
+          }
 
-          res.status(200).json(lines)
+          res.status(201).json({ productionLog: result })
         } catch (err) {
           logger.error(RESPONSE.error.parseErr(err.message))
           res.status(500).json({ error: err.message })
