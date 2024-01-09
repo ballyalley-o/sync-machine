@@ -6,13 +6,13 @@ const {
   coilLooper,
   sysLooper,
   productionLooper,
+  erpLooper,
 } = require('../middleware')
-const { caseIndices } = require('../middleware/loopers/production')
 const { paths, nuller } = require('../utils')
 const { GLOBAL } = require('../config')
 const { URL, RESPONSE, LOG } = require('../constants')
 // models
-const { Production } = require('../models')
+const { Production, ERP } = require('../models')
 
 const USERPROFILE = GLOBAL.userProfile
 
@@ -165,7 +165,7 @@ const erpLog = async (req, res) => {
         return promisePath
       })
 
-      fs.readFile(promisePath, 'utf8', (err, data) => {
+      fs.readFile(promisePath, 'utf8', async (err, data) => {
         if (err) {
           res.status(500).json({ error: err.message })
           return
@@ -176,7 +176,28 @@ const erpLog = async (req, res) => {
           logger.log(lines)
           const components = lines.length
 
-          res.status(200).json(lines)
+          // TODO: save erp logs to database
+
+          let result = {}
+
+          for (const key in LOG.erp) {
+            result[key] = Object.values(erpLooper(lines, key))[0]
+          }
+
+          const erpLogExists = await ERP.findOne({
+            dateTime: result.dateTime,
+          })
+
+          if (erpLogExists) {
+            logger.log(RESPONSE.exists('erp log'))
+            res.status(200).json({ erpLog: result })
+            return
+          } else {
+            const newErpLog = await ERP.create(result)
+            logger.log(RESPONSE.dbSaved('erp log'))
+          }
+
+          res.status(201).json({ erpLog: result })
         } catch (err) {
           logger.error(RESPONSE.error.parseErr(err.message))
           res.status(500).json({ error: err.message })
