@@ -1,13 +1,15 @@
 const RESPONSE = {
   iniSimulation: 'Ready for Simulation',
   noChanges: 'No changes found',
+  exists: (data) => `${data} already exists`,
+  dbSaved: (data) => `new ${data} has been saved to the database`,
   success: {
     200: 'OK: Request fetched',
     201: 'CREATED: Request created',
     normalized: (word, result) => ` Normalized ${word} to ${result} `,
     204: 'NO CONTENT: The server successfully processed the request but there is no content to send in the response.',
     file200: (file) => `OK: File: ${file}`,
-    profile201: (length) => `CREATED: Profile ${length}`
+    profile201: (length) => `CREATED: Profile ${length}`,
   },
   error: {
     400: 'BAD REQUEST: Client request is Invalid',
@@ -23,9 +25,8 @@ const RESPONSE = {
     failedNormalize: (word) => `Failed to normalize ${word}`,
     underScoreIndex: 'Underscore index Not Found',
     file404: (type, ext) => `No ${type + ext} file found in the folder.`,
-    parseErr: (err) => `Error parsing JSON: ${err}`
-  }
+    parseErr: (err) => `Error parsing JSON: ${err}`,
+  },
 }
-
 
 module.exports = RESPONSE
