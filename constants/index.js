@@ -4,5 +4,6 @@ module.exports = {
   BURN_IN_PARAMS: require('./burn-in-params'),
   RESPONSE: require('./reponse'),
   COUNTRY: require('./country'),
-  TARGETS: require('./targets')
+  TARGETS: require('./targets'),
+  LOG: require('./log'),
 }
