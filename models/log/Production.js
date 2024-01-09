@@ -26,7 +26,7 @@ const ProductionSchema = new Schema(
       type: String,
     },
     // was thinking to name this field to isModified but might be confusing since it is conventionally used for booleans
-    // FIXME: change name of this field
+    // FIXME: change name variation of this field
     modClassifier: {
       type: String,
       // TODO: if UnModified have the value as false
