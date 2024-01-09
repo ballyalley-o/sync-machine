@@ -13,6 +13,7 @@ module.exports = {
   iniLooper: require('./loopers/ini'),
   analogLooper: require('./loopers/analog'),
   productionLooper: require('./loopers/production'),
+  erpLooper: require('./loopers/erp'),
   // websocket implementation
   sysLooper: require('./loopers/system'),
   sysLogWs: require('./system-log-ws'),
