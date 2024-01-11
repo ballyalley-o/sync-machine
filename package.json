@@ -1,7 +1,7 @@
 {
   "name": "howick-sync-machine",
   "version": "1.0.0",
-  "description": "backend for reading the appState",
+  "description": "backend for reading the appState, logs, and configuration",
   "main": "app.js",
   "scripts": {
     "start": "nodemon app.js",
